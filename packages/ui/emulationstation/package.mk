@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2019-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="emulationstation"
-PKG_VERSION="f743fd3"
+PKG_VERSION="2532471157e7df15ca70e0881e2411b81a1d2daa"
 PKG_GIT_CLONE_BRANCH="main"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/JustEnoughLinuxOS/emulationstation"
 PKG_URL="${PKG_SITE}.git"
-PKG_DEPENDS_TARGET="boost toolchain SDL2 freetype curl freeimage bash rapidjson SDL2_mixer fping p7zip alsa vlc drm_tool splash"
+PKG_DEPENDS_TARGET="boost toolchain SDL2 freetype curl freeimage bash rapidjson SDL2_mixer fping p7zip alsa vlc drm_tool pugixml"
 PKG_NEED_UNPACK="busybox"
 PKG_SHORTDESC="Emulationstation emulator frontend"
 PKG_BUILD_FLAGS="-gold"
@@ -33,7 +33,12 @@ else
   PKG_CMAKE_OPTS_TARGET+=" -DENABLE_UPDATES=0"
 fi
 
-PKG_CMAKE_OPTS_TARGET+=" -DENABLE_EMUELEC=1 -DDISABLE_KODI=1 -DENABLE_FILEMANAGER=0 -DCEC=0"
+PKG_CMAKE_OPTS_TARGET+=" -DENABLE_EMUELEC=1 \
+                         -DDISABLE_KODI=1 \
+                         -DENABLE_FILEMANAGER=0 \
+                         -DCEC=0 \
+                         -DENABLE_PULSE=1 \
+                         -DUSE_SYSTEM_PUGIXML=1"
 
 ##########################################################################################################
 # The following allows building Emulation station from local copy by using EMULATIONSTATION_SRC.
@@ -115,13 +120,36 @@ makeinstall_target() {
 
   mkdir -p ${INSTALL}/etc/emulationstation/
   ln -sf /storage/.config/emulationstation/themes ${INSTALL}/etc/emulationstation/
+
+  cp -rf ${PKG_DIR}/config/common/*.cfg ${INSTALL}/usr/config/emulationstation
+
+  # If we're not an emulation device, ES may still be installed so we need a default config.
+  if [ "${EMULATION_DEVICE}" = "no" ] || \
+     [ "${BASE_ONLY}" = "true" ]
+  then
+    cat <<EOF >${INSTALL}/etc/emulationstation/es_systems.cfg
+<?xml version="1.0" encoding="UTF-8"?>
+<systemList>
+        <system>
+                <name>tools</name>
+                <fullname>Tools</fullname>
+                <manufacturer>JELOS</manufacturer>
+                <release>2021</release>
+                <hardware>system</hardware>
+                <path>/storage/.config/modules</path>
+                <extension>.sh</extension>
+                <command>%ROM%</command>
+                <platform>tools</platform>
+                <theme>tools</theme>
+        </system>
+</systemList>
+EOF
+  fi
+
   ln -sf /usr/config/emulationstation/es_systems.cfg ${INSTALL}/etc/emulationstation/es_systems.cfg
-
-   cp -rf ${PKG_DIR}/config/common/*.cfg ${INSTALL}/usr/config/emulationstation
-
-   if [ -d "${PKG_DIR}/config/device/${DEVICE}" ]; then
-     cp -rf ${PKG_DIR}/config/device/${DEVICE}/*.cfg ${INSTALL}/usr/config/emulationstation
-   fi
+  if [ -d "${PKG_DIR}/config/device/${DEVICE}" ]; then
+    cp -rf ${PKG_DIR}/config/device/${DEVICE}/*.cfg ${INSTALL}/usr/config/emulationstation
+  fi
 
   ln -sf /storage/.cache/system_timezone ${INSTALL}/etc/timezone
 

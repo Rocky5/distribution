@@ -2,8 +2,8 @@
 # Copyright (C) 2017-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="rust"
-PKG_VERSION="1.63.0"
-PKG_SHA256="1f9580295642ef5da7e475a8da2397d65153d3f2cb92849dbd08ed0effca99d0"
+PKG_VERSION="1.73.0"
+PKG_SHA256="96d62e6d1f2d21df7ac8acb3b9882411f9e7c7036173f7f2ede9e1f1f6b1bb3a"
 PKG_LICENSE="MIT"
 PKG_SITE="https://www.rust-lang.org"
 PKG_URL="https://static.rust-lang.org/dist/rustc-${PKG_VERSION}-src.tar.gz"
@@ -19,19 +19,8 @@ pre_configure_host() {
 }
 
 configure_host() {
-
   mkdir -p ${PKG_BUILD}/targets
-
-  case "${TARGET_ARCH}" in
-    "arm")
-      # the arm target is special because we specify the subarch. ie armv8a
-      cp -a ${PKG_DIR}/targets/arm-libreelec-linux-gnueabihf.json ${PKG_BUILD}/targets/${TARGET_NAME}.json
-      ;;
-    "aarch64"|"x86_64")
-      cp -a ${PKG_DIR}/targets/${TARGET_NAME}.json ${PKG_BUILD}/targets/${TARGET_NAME}.json
-      ;;
-  esac
-
+  cp -a ${PKG_DIR}/targets/${TARGET_NAME}.json ${PKG_BUILD}/targets/${TARGET_NAME}.json
   cat > ${PKG_BUILD}/config.toml <<END
 changelog-seen = 2
 

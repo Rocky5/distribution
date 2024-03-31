@@ -1,17 +1,46 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="moonlight"
-PKG_VERSION="0169cedb27552a358cfd6afb1d99e3c5e86f22bf"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv3"
-PKG_SITE="https://github.com/moonlight-stream/moonlight-embedded"
-PKG_URL="${PKG_SITE}.git"
+PKG_SITE="https://github.com/moonlight-stream/moonlight-"
 PKG_DEPENDS_TARGET="toolchain opus SDL2 libevdev alsa curl enet avahi libvdpau libcec ffmpeg"
-PKG_SHORTDESC="Moonlight Embedded is an open source implementation of NVIDIA's GameStream, as used by the NVIDIA Shield, but built for Linux."
-PKG_TOOLCHAIN="cmake"
+PKG_SHORTDESC="Moonlight is an open source implementation of NVIDIA's GameStream, as used by the NVIDIA Shield, but built for Linux."
 GET_HANDLER_SUPPORT="git"
 PKG_PATCH_DIRS+="${DEVICE}"
+
+if [ "${TARGET_ARCH}" = "x86_64" ] 
+then
+  PKG_SITE+="qt"
+  PKG_URL="${PKG_SITE}.git"
+  PKG_VERSION="89a628a0dde50264fd2170125588c15d8dd80a2c"
+  PKG_DEPENDS_TARGET+=" qt5"
+  PKG_TOOLCHAIN="manual"
+  make_target() {
+    qmake "CONFIG+=embedded" moonlight-qt.pro
+    make release
+  }
+  post_makeinstall_target() {
+    mkdir -p ${INSTALL}/usr/bin
+    mkdir -p ${INSTALL}/usr/config/modules
+    cp ${PKG_BUILD}/app/moonlight ${INSTALL}/usr/bin/
+    cp ${PKG_BUILD}/start_moonlight.sh ${INSTALL}/usr/bin/
+    chmod +x ${INSTALL}/usr/bin/*
+    mv ${INSTALL}/usr/bin/start_moonlight.sh ${INSTALL}/usr/config/modules/Start\ Moonlight.sh
+  }
+else
+  PKG_SITE+="embedded"
+  PKG_URL="${PKG_SITE}.git"
+  PKG_VERSION="3b72f5195b6843be772a2eb6846ac10ceed39bf4"
+  PKG_TOOLCHAIN="cmake"
+  post_makeinstall_target() {
+    mkdir -p ${INSTALL}/usr/config/moonlight
+    cp -R ${PKG_BUILD}/moonlight.conf ${INSTALL}/usr/config/moonlight
+    rm ${INSTALL}/usr/etc/moonlight.conf 
+    rm ${INSTALL}/usr/share/moonlight/gamecontrollerdb.txt 
+  }
+fi
 
 if [ "${PROJECT}" = "Rockchip" ]
 then
@@ -30,10 +59,3 @@ if [ "${VULKAN_SUPPORT}" = "yes" ]
   then
   PKG_DEPENDS_TARGET+=" vulkan-loader vulkan-headers"
 fi
-
-post_makeinstall_target() {
-  mkdir -p ${INSTALL}/usr/config/moonlight
-    cp -R ${PKG_BUILD}/moonlight.conf ${INSTALL}/usr/config/moonlight
-    rm ${INSTALL}/usr/etc/moonlight.conf 
-    rm ${INSTALL}/usr/share/moonlight/gamecontrollerdb.txt 
-}

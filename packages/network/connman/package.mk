@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2019-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="connman"
-PKG_VERSION="7a0bc35c4b2d9bd1c6fd76866a8a86807a626591"
+PKG_VERSION="7d531a0d2b44b273ee78453b086454a8181a47a8" # 1.42
 PKG_LICENSE="GPL"
 PKG_SITE="http://www.connman.net"
 PKG_URL="https://git.kernel.org/pub/scm/network/connman/connman.git/snapshot/connman-${PKG_VERSION}.tar.gz"
@@ -49,7 +49,7 @@ PKG_CONFIGURE_OPTS_TARGET="WPASUPPLICANT=/usr/bin/wpa_supplicant \
 if [ "$WIREGUARD_SUPPORT" = "yes" ]; then
   PKG_CONFIGURE_OPTS_TARGET+=" --enable-wireguard=builtin"
 else
-  PKG_CONGIGURE_OPTS_TARGET+=" --disable-wireguard"
+  PKG_CONFIGURE_OPTS_TARGET+=" --disable-wireguard"
 fi
 
 PKG_MAKE_OPTS_TARGET="storagedir=/storage/.cache/connman \
@@ -77,12 +77,14 @@ post_makeinstall_target() {
         -e "s|^# TetheringTechnologies.*|TetheringTechnologies = wifi|g" \
         -e "s|^# AllowHostnameUpdates.*|AllowHostnameUpdates = false|g" \
         -e "s|^# PersistentTetheringMode.*|PersistentTetheringMode = true|g" \
-        -e "s|^# SingleConnectedTechnology.*|SingleConnectedTechnology = true|g" \
         -e "s|^# NetworkInterfaceBlacklist = vmnet,vboxnet,virbr,ifb|NetworkInterfaceBlacklist = vmnet,vboxnet,virbr,ifb,docker,veth,zt,p2p|g"
 
   mkdir -p ${INSTALL}/usr/share/connman/
     cp ${PKG_DIR}/config/settings ${INSTALL}/usr/share/connman/
 }
+
+# Bounced from above
+#        -e "s|^# SingleConnectedTechnology.*|SingleConnectedTechnology = true|g" \
 
 post_install() {
   add_user system x 430 430 "service" "/var/run/connman" "/bin/sh"

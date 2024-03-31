@@ -31,7 +31,7 @@
     BOOTLOADER="u-boot"
     TRUST_LABEL="trust"
     PARTITION_TABLE="msdos"
-    DEVICE_DTB=("rk3326-anbernic-rg351m" "rk3326-anbernic-rg351v"  "rk3326-odroid-go2" "rk3326-odroid-go2-v11" "rk3326-odroid-go3")
+    DEVICE_DTB=("rk3326-anbernic-rg351m" "rk3326-anbernic-rg351v" "rk3326-gameconsole-r33s" "rk3326-gameconsole-r36s" "rk3326-gameforce-chi" "rk3326-odroid-go2" "rk3326-odroid-go2-v11" "rk3326-odroid-go3" "rk3326-powkiddy-rgb10" "rk3326-powkiddy-rgb20s"  "rk3326-magicx-xu10")
     UBOOT_DTB="${DEVICE_DTB[0]}"
     UBOOT_CONFIG="odroidgoa_defconfig"
     PKG_SOC="px30"
@@ -70,21 +70,21 @@
     WINDOWMANAGER="weston"
   
   # kernel serial console
-    EXTRA_CMDLINE="quiet rootwait console=tty0 fbcon=rotate:3 ssh consoleblank=0 systemd.show_status=0 loglevel=0 panic=20"
+    EXTRA_CMDLINE="quiet rootwait console=ttyFIQ0 console=tty0 ssh consoleblank=0 systemd.show_status=0 loglevel=0 panic=20"
 
   # additional packages to install
-    ADDITIONAL_PACKAGES=""
+    ADDITIONAL_PACKAGES="device-switch"
 
-  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # additional Firmware to use ( )
   # Space separated list is supported,
-  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware"
+  # e.g. FIRMWARE=""
+    FIRMWARE="esp8089-firmware"
 
   # additional drivers to install:
   # for a list of additional drivers see packages/linux-drivers
   # Space separated list is supported,
   # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
-    ADDITIONAL_DRIVERS="RTL8812AU RTL8814AU RTL8821AU RTL8821CU RTL88x2BU"
+    ADDITIONAL_DRIVERS="RTL8812AU RTL8814AU RTL8821AU RTL8821CU RTL88x2BU RTL8723DS"
 
   # build and install driver addons (yes / no)
     DRIVER_ADDONS_SUPPORT="no"
@@ -100,11 +100,8 @@
   # Disable 32BIT support
     ENABLE_32BIT="true"
 
-  # build and install PulseAudio support (yes / no)
-    PULSEAUDIO_SUPPORT="yes"
- 
   # build and install bluetooth support (yes / no)
-    BLUETOOTH_SUPPORT="no"
+    BLUETOOTH_SUPPORT="yes"
 
   # build and install Avahi (Zeroconf) daemon (yes / no)
     AVAHI_DAEMON="no"
@@ -121,9 +118,15 @@
   # build and install SFTP Server (yes / no)
     SFTP_SERVER="yes"
 
+  # build and install Simple HTTP Server (yes / no)
+    SIMPLE_HTTP_SERVER="yes"
+
   # build and install OpenVPN support (yes / no)
     OPENVPN_SUPPORT="no"
 
+  # build and install ZeroTier support (yes / no)
+    ZEROTIER_SUPPORT="yes"
+    
   # build and install diskmounter support (udevil)
   # this service provide auto mounting support for external drives in the
   # mediacenter also automount internally drives at boottime via udev (yes / no)

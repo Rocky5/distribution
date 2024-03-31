@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2021-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="hypseus-singe"
-PKG_VERSION="329b748812acb2693e4bba2bc332510ac397867d"
+PKG_VERSION="428d4123b4b949ea4b58d9e5c7e6cf5ec8548c91"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL3"

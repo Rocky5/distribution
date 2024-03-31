@@ -30,21 +30,12 @@
     KERNEL_TARGET="Image"
     BOOTLOADER="u-boot"
     PARTITION_TABLE="msdos"
-    DEVICE_DTB=("meson-g12b-odroid-go-ultra" "meson-g12b-powkiddy-rgb10-max-3")
-    UBOOT_DTB="${DEVICE_DTB[0]}"
-    UBOOT_CONFIG="odroidgou_defconfig"
-    PKG_SOC="s922x"
-    BOOT_FIP="odroid-go-ultra"
-    BOOT_INI=true
-    BIOS_BIN=true
-    EXT_LINUX_CONF=false
 
   # Additional kernel make parameters (for example to specify the u-boot loadaddress)
-    KERNEL_MAKE_EXTRACMD+=""
-    KERNEL_MAKE_EXTRACMD=" $(for DTB in "${DEVICE_DTB[@]}"; do echo -n "amlogic/${DTB}.dtb "; done)"  
+    KERNEL_MAKE_EXTRACMD+="$(while read i; do eval $i; for dtb in ${DTB[@]}; do echo amlogic/${dtb}.dtb; done; done <<< $(grep DTB= ${PROJECT_DIR}/${PROJECT}/bootloader/mkimage))"
 
   # Define the CPU
-    HW_CPU="Amlogic S922x"
+    HW_CPU="Amlogic S922X"
 
   # Mali GPU family
     MALI_FAMILY="g52"
@@ -66,24 +57,24 @@
     DISPLAYSERVER="wl"
 
   # Windowmanager to use (fluxbox / weston / no)
-    WINDOWMANAGER="weston"
+    WINDOWMANAGER="weston11"
   
   # kernel serial console
-    EXTRA_CMDLINE="rootwait quiet console=ttyAML0,115200n8 console=tty0 no_console_suspend net.ifnames=0 consoleblank=0 fbcon=rotate:3"
+    EXTRA_CMDLINE="rootwait quiet systemd.debug_shell=ttyAML0 console=ttyAML0,115200n8 console=tty0 no_console_suspend net.ifnames=0 consoleblank=0 video=HDMI-A-1:1920x1080@60"
 
   # additional packages to install
   #  ADDITIONAL_PACKAGES=""
 
-  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # additional Firmware to use ( )
   # Space separated list is supported,
-  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware libmali-vulkan"
+  # e.g. FIRMWARE=""
+    FIRMWARE="libmali-vulkan"
 
   # additional drivers to install:
   # for a list of additional drivers see packages/linux-drivers
   # Space separated list is supported,
   # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
-    ADDITIONAL_DRIVERS="RTL8812AU RTL8821AU RTL8821CU RTL88x2BU RTL8188EU"
+    ADDITIONAL_DRIVERS="mali-bifrost RTL8812AU RTL8821AU"
  
   # build and install driver addons (yes / no)
     DRIVER_ADDONS_SUPPORT="no"
@@ -94,16 +85,13 @@
     DRIVER_ADDONS=""
 
   # debug tty path
-    DEBUG_TTY="/dev/ttyFIQ0"
+    DEBUG_TTY="/dev/ttyAML0"
 
   # Disable 32BIT support
     ENABLE_32BIT="false"
    
-  # build and install PulseAudio support (yes / no)
-    PULSEAUDIO_SUPPORT="yes"
- 
   # build and install bluetooth support (yes / no)
-    BLUETOOTH_SUPPORT="no"
+    BLUETOOTH_SUPPORT="yes"
 
   # build and install Avahi (Zeroconf) daemon (yes / no)
     AVAHI_DAEMON="no"
@@ -119,6 +107,9 @@
 
   # build and install SFTP Server (yes / no)
     SFTP_SERVER="yes"
+
+  # build and install Simple HTTP Server (yes / no)
+    SIMPLE_HTTP_SERVER="yes"
 
   # build and install OpenVPN support (yes / no)
     OPENVPN_SUPPORT="no"
@@ -153,6 +144,9 @@
   # swapfile size if SWAP_SUPPORT=yes in MB
     SWAPFILESIZE="384"
 
+  # Some devices have internal storage.
+    INSTALLER_SUPPORT="yes"
+
   # cron support (yes / no)
     CRON_SUPPORT="no"
 
@@ -161,3 +155,6 @@
 
   # htop tool (yes / no)
     HTOP_TOOL="yes"
+
+  # JELOS Subdevices (supported devices: Odroid_GOU Odroid_N2 Odroid_N2L)
+    SUBDEVICES="Odroid_GOU Odroid_N2 Odroid_N2L"

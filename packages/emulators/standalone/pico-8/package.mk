@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2022-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="pico-8"
-PKG_VERSION="9b246380239da619c5de4edda858071c99a1b62d"
+PKG_VERSION="95cb4d4f28e1743c6a7f3c0266049f68b2134b60"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_SITE=""

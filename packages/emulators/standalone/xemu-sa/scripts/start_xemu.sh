@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2023-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
-jslisten set "-9 xemu"
+set_kill set "-9 xemu"
 
 #Check if xemu exists in .config
 if [ ! -d "/storage/.config/xemu" ]; then
@@ -39,3 +39,6 @@ fi
 CONFIG=/storage/.config/xemu/xemu.toml
 
 @APPIMAGE@ -full-screen -config_path $CONFIG -dvd_path "${1}"
+
+#Workaround until we can learn why it doesn't exit cleanly when asked.
+killall -9 xemu-sa

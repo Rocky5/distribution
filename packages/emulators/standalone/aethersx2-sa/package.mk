@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2023-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="aethersx2-sa"
 PKG_VERSION="v1.5-3606"
 PKG_ARCH="aarch64"
 PKG_LICENSE="LGPL"
-PKG_SITE="https://www.aethersx2.com"
-PKG_URL="${PKG_SITE}/archive/desktop/linux/AetherSX2-${PKG_VERSION}.AppImage"
-PKG_DEPENDS_TARGET="toolchain qt5 libgpg-error"
+PKG_SITE="https://github.com/r3claimer/JelosAddOns"
+PKG_URL="${PKG_SITE}/raw/main/aethersx2-sa-${PKG_VERSION}.AppImage"
+PKG_DEPENDS_TARGET="toolchain qt5 libgpg-error fuse2"
 PKG_LONGDESC="Arm PS2 Emulator appimage"
 PKG_TOOLCHAIN="manual"
 

@@ -3,7 +3,7 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="systemd"
-PKG_VERSION="252.10"
+PKG_VERSION="253.16"
 PKG_LICENSE="LGPL2.1+"
 PKG_SITE="http://www.freedesktop.org/wiki/Software/systemd"
 PKG_URL="https://github.com/systemd/systemd-stable/archive/v${PKG_VERSION}.tar.gz"
@@ -105,12 +105,8 @@ then
 fi
 
 pre_configure_target() {
-  export TARGET_CFLAGS=$(echo ${TARGET_CFLAGS} | sed -e "s|-ffast-math||g")
-  export TARGET_CFLAGS=$(echo ${TARGET_CFLAGS} | sed -e "s|-Ofast|-O3|g")
   export TARGET_CFLAGS=$(echo ${TARGET_CFLAGS} | sed -e "s|-O.|-O3|g")
 
-  export TARGET_LDFLAGS=$(echo ${TARGET_LDFLAGS} | sed -e "s|-ffast-math||g")
-  export TARGET_LDFLAGS=$(echo ${TARGET_LDFLAGS} | sed -e "s|-Ofast|-O3|g")
   export TARGET_LDFLAGS=$(echo ${TARGET_LDFLAGS} | sed -e "s|-O.|-O3|g")
 
   export TARGET_CFLAGS="${TARGET_CFLAGS} -fno-schedule-insns -fno-schedule-insns2 -Wno-format-truncation"
@@ -222,8 +218,8 @@ post_makeinstall_target() {
   cp ${PKG_DIR}/scripts/systemd-timesyncd-setup ${INSTALL}/usr/sbin
 
   # /etc/resolv.conf and /etc/hosts must be writable
-  ln -sf /run/libreelec/resolv.conf ${INSTALL}/etc/resolv.conf
-  ln -sf /run/libreelec/hosts ${INSTALL}/etc/hosts
+  ln -sf /run/jelos/resolv.conf ${INSTALL}/etc/resolv.conf
+  ln -sf /run/jelos/hosts ${INSTALL}/etc/hosts
 
   # provide 'halt', 'shutdown', 'reboot' & co.
   ln -sf /usr/bin/systemctl ${INSTALL}/usr/sbin/halt

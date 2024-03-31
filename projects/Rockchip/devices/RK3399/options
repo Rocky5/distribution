@@ -30,13 +30,15 @@
     KERNEL_TARGET="Image"
     BOOTLOADER="u-boot"
     PARTITION_TABLE="msdos"
-    DEVICE_DTB=("rk3399-rg552-linux")
+    DEVICE_DTB=("rk3399-anbernic-rg552")
     UBOOT_DTB="${DEVICE_DTB[0]}"
+    UBOOT_FIT_IMAGE="rk3399-uboot.bin"
     UBOOT_CONFIG="evb-rk3399_defconfig"
     PKG_SOC="rk3399"
+    ATF_PLATFORM="${PKG_SOC}"
     PKG_DATAFILE="$PKG_RKBIN/bin/rk33/rk3399_ddr_933MHz_v1.30.bin"
     PKG_LOADER="$PKG_RKBIN/bin/rk33/rk3399_miniloader_v1.26.bin"
-    PKG_BL31="$PKG_RKBIN/bin/rk33/rk3399_bl31_v1.36.elf"
+    ATF_BL31_BINARY="bl31/bl31.elf"
     BOOT_INI=false
     EXT_LINUX_CONF=true
 
@@ -66,16 +68,19 @@
   # Windowmanager to use (fluxbox / weston / no)
     WINDOWMANAGER="weston"
 
+  # Pipewire audio support (yes / no)
+    PIPEWIRE_SUPPORT="yes"
+
   # kernel serial console
     EXTRA_CMDLINE="quiet rootwait console=tty0 video=DSI-1:1152x1920p60 fbcon=rotate:3 ssh consoleblank=0 systemd.show_status=0 loglevel=0 panic=20"
 
   # additional packages to install
     ADDITIONAL_PACKAGES=""
 
-  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # additional Firmware to use ( )
   # Space separated list is supported,
-  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware RTL8188FU-firmware"
+  # e.g. FIRMWARE=""
+    FIRMWARE="RTL8188FU-firmware"
 
   # additional drivers to install:
   # for a list of additional drivers see packages/linux-drivers
@@ -97,11 +102,8 @@
   # Disable 32BIT support
     ENABLE_32BIT="true"
 
-  # build and install PulseAudio support (yes / no)
-    PULSEAUDIO_SUPPORT="yes"
- 
   # build and install bluetooth support (yes / no)
-    BLUETOOTH_SUPPORT="no"
+    BLUETOOTH_SUPPORT="yes"
 
   # build and install Avahi (Zeroconf) daemon (yes / no)
     AVAHI_DAEMON="no"
@@ -117,6 +119,9 @@
 
   # build and install SFTP Server (yes / no)
     SFTP_SERVER="yes"
+
+  # build and install Simple HTTP Server (yes / no)
+    SIMPLE_HTTP_SERVER="yes"
 
   # build and install OpenVPN support (yes / no)
     OPENVPN_SUPPORT="no"

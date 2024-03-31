@@ -19,7 +19,7 @@
 ################################################################################
 
 PKG_NAME="yabasanshiro-lr"
-PKG_VERSION="7513c8459034a0fe415d3cae4d692a54d0f90296"
+PKG_VERSION="4e65871ec0a2582fa2dbe055fccb6573dbd68d4f"
 PKG_GIT_CLONE_BRANCH="yabasanshiro"
 PKG_REV="1"
 PKG_ARCH="any"
@@ -45,12 +45,16 @@ if [ "${OPENGLES_SUPPORT}" = yes ]; then
 fi
 
 pre_configure_target() {
+  sed -i 's/\-O[23]/-Ofast -ffast-math/' ${PKG_BUILD}/yabause/src/libretro/Makefile
   case ${DEVICE} in
     RK3*|S922X*)
       PKG_MAKE_OPTS_TARGET+=" -C yabause/src/libretro platform=rockpro64 HAVE_NEON=0 FORCE_GLES=1"
     ;;
+    AMD64)
+      PKG_MAKE_OPTS_TARGET+=" -C yabause/src/libretro FORCE_GLES=0 USE_X86_DRC=1 FASTMATH=1"
+    ;;
     *)
-      PKG_MAKE_OPTS_TARGET+=" -C yabause/src/libretro"
+      PKG_MAKE_OPTS_TARGET+=" -C yabause/src/libretro FORCE_GLES=1"
     ;;
   esac
 }

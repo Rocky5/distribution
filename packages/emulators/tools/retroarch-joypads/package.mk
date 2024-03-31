@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="retroarch-joypads"
-PKG_VERSION="83a6184dd201b5297f0c7440a081237ed0cb1fa7"
+PKG_VERSION="68f516f798d477eb06787bb64bd42496f9b3f617"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/retroarch-joypad-autoconfig"
 PKG_URL="${PKG_SITE}.git"

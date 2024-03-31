@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="soundtouch"
-PKG_VERSION="2.3.1"
+PKG_VERSION="2.3.2"
 PKG_LICENSE="LGPL-2.1+"
 PKG_SITE="https://www.surina.net/soundtouch"
 PKG_URL="https://codeberg.org/soundtouch/soundtouch/archive/${PKG_VERSION}.tar.gz"

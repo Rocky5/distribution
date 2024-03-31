@@ -1,13 +1,12 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2019-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # Source predefined functions and variables
 . /etc/profile
 
-set_audio alsa
-export SDL_AUDIODRIVER=alsa
+export SDL_AUDIODRIVER=pulseaudio
 
 TZ=$(get_setting system.timezone)
 echo -n "TIMEZONE=${TZ}" > /storage/.cache/timezone
@@ -44,4 +43,6 @@ then
   systemctl import-environment LANGUAGE
 fi
 
-emulationstation --log-path /var/log
+set_kill set "emulationstation"
+
+emulationstation --log-path /var/log --no-splash

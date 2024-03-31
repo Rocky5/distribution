@@ -26,9 +26,6 @@
 # setup project defaults
 ################################################################################
 
-  # build and install ALSA Audio support (yes / no)
-    ALSA_SUPPORT="yes"
-
   # OpenGL(X) implementation to use (no / mesa)
     OPENGL="mesa"
 
@@ -49,10 +46,10 @@
   # Modules to install in initramfs for early boot
     INITRAMFS_MODULES=""
 
-  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # additional Firmware to use ( )
   # Space separated list is supported,
-  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware"
+  # e.g. FIRMWARE=""
+    FIRMWARE=""
 
   # additional packages to install
     ADDITIONAL_PACKAGES=""
@@ -67,4 +64,8 @@
     DRIVER_ADDONS_SUPPORT="no"
 
   # debug tty path
-    DEBUG_TTY="/dev/ttyS2"
+    DEBUG_TTY="/dev/ttyAML0"
+
+  # build with entware installer
+    ENTWARE_SUPPORT="yes"
+    ENTWARE_ARCH="aarch64-k3.10"

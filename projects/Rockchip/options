@@ -26,9 +26,6 @@
 # setup project defaults
 ################################################################################
 
-  # build and install ALSA Audio support (yes / no)
-    ALSA_SUPPORT="yes"
-
   # OpenGL(X) implementation to use (no / mesa)
     OPENGL="no"
 
@@ -52,10 +49,10 @@
   # Modules to install in initramfs for early boot
     INITRAMFS_MODULES=""
 
-  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # additional Firmware to use ( )
   # Space separated list is supported,
-  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware dvb-firmware rockchip-firmware"
+  # e.g. FIRMWARE=""
+    FIRMWARE=" rockchip-firmware"
 
   # additional packages to install
   #  ADDITIONAL_PACKAGES=""
@@ -79,3 +76,7 @@
 
   # debug tty path
     DEBUG_TTY="/dev/ttyS2"
+
+  # build with entware installer
+    ENTWARE_SUPPORT="yes"
+    ENTWARE_ARCH="aarch64-k3.10"

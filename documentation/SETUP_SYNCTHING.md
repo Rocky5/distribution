@@ -1,0 +1,1 @@
+Moved to [https://jelos.org/configure/cloud-sync/](https://jelos.org/configure/cloud-sync/)

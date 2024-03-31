@@ -8,27 +8,11 @@ PKG_SITE="https://ffmpeg.org"
 PKG_DEPENDS_TARGET="toolchain zlib bzip2 openssl speex"
 PKG_LONGDESC="FFmpeg is a complete, cross-platform solution to record, convert and stream audio and video."
 
-PKG_VERSION="4.4.1"
-PKG_SHA256="eadbad9e9ab30b25f5520fbfde99fae4a92a1ae3c0257a8d68569a4651e30e02"
+PKG_VERSION="6.0"
 PKG_URL="http://ffmpeg.org/releases/ffmpeg-${PKG_VERSION}.tar.xz"
-PKG_PATCH_DIRS="kodi libreelec"
+PKG_PATCH_DIRS="jelos"
 
-case "${PROJECT}" in
-  Amlogic)
-    PKG_VERSION="f9638b6331277e53ecd9276db5fe6dcd91d44c57"
-    PKG_FFMPEG_BRANCH="dev/4.4/rpi_import_1"
-    PKG_SHA256="3b42cbffd15d95d59e402475fcdb1aaac9ae6a8404a521b95d1fe79c6b2baad4"
-    PKG_URL="https://github.com/jc-kynesim/rpi-ffmpeg/archive/${PKG_VERSION}.tar.gz"
-    PKG_PATCH_DIRS="libreelec dav1d"
-    ;;
-  RPi)
-    PKG_FFMPEG_RPI="--disable-mmal --disable-rpi --enable-sand"
-    PKG_PATCH_DIRS+=" rpi"
-    ;;
-  *)
-    PKG_PATCH_DIRS+=" v4l2-request v4l2-drmprime"
-    ;;
-esac
+PKG_PATCH_DIRS+=" v4l2-request v4l2-drmprime"
 
 post_unpack() {
   # Fix FFmpeg version
@@ -45,8 +29,15 @@ get_graphicdrivers
 PKG_FFMPEG_HWACCEL="--enable-hwaccels"
 
 case ${DEVICE} in
-  RK3588)
+  RK3588*)
     V4L2_SUPPORT=no
+  ;;
+  *)
+    case ${PROJECT} in
+      Rockchip)
+        PKG_PATCH_DIRS+=" vf-deinterlace-v4l2m2m"
+      ;;
+    esac
   ;;
 esac
 
@@ -54,6 +45,23 @@ if [ "${V4L2_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET+=" libdrm"
   PKG_NEED_UNPACK+=" $(get_pkg_directory libdrm)"
   PKG_FFMPEG_V4L2="--enable-v4l2_m2m --enable-libdrm"
+
+  case ${PROJECT} in
+    Amlogic|PC|Rockchip)
+      PKG_V4L2_REQUEST="yes"
+    ;;
+    *)
+      PKG_V4L2_REQUEST="no"
+    ;;
+  esac
+
+  if [ "${PKG_V4L2_REQUEST}" = "yes" ]; then
+    PKG_DEPENDS_TARGET+=" systemd"
+    PKG_NEED_UNPACK+=" $(get_pkg_directory systemd)"
+    PKG_FFMPEG_V4L2+=" --enable-libudev --enable-v4l2-request"
+  else
+    PKG_FFMPEG_V4L2+=" --disable-libudev --disable-v4l2-request"
+  fi
 
   if [ "${PKG_V4L2_REQUEST}" = "yes" ]; then
     PKG_DEPENDS_TARGET+=" systemd"
@@ -74,13 +82,13 @@ else
   PKG_FFMPEG_VAAPI="--disable-vaapi"
 fi
 
-if [ "${DISPLAYSERVER}" != "x11" ]; then
+if [ "${DISPLAYSERVER}" != "wl" ]; then
   PKG_DEPENDS_TARGET+=" libdrm"
   PKG_NEED_UNPACK+=" $(get_pkg_directory libdrm)"
   PKG_FFMPEG_VAAPI=" --enable-libdrm"
 fi
 
-if [ "${VDPAU_SUPPORT}" = "yes" -a "${DISPLAYSERVER}" = "x11" ]; then
+if [ "${VDPAU_SUPPORT}" = "yes" -a "${DISPLAYSERVER}" = "wl" ]; then
   PKG_DEPENDS_TARGET+=" libvdpau"
   PKG_NEED_UNPACK+=" $(get_pkg_directory libvdpau)"
   PKG_FFMPEG_VDPAU="--enable-vdpau"
@@ -104,6 +112,12 @@ if [ "${TARGET_ARCH}" = "x86_64" ]; then
   PKG_DEPENDS_TARGET+=" nasm:host"
 fi
 
+case ${PROJECT} in
+  Rockchip)
+    PKG_DEPENDS_TARGET+=" rkmpp"
+  ;;
+esac
+
 if target_has_feature "(neon|sse)"; then
   PKG_DEPENDS_TARGET+=" dav1d"
   PKG_NEED_UNPACK+=" $(get_pkg_directory dav1d)"
@@ -119,9 +133,6 @@ pre_configure_target() {
 
 if [ "${FFMPEG_TESTING}" = "yes" ]; then
   PKG_FFMPEG_TESTING="--enable-encoder=wrapped_avframe --enable-muxer=null"
-  if [ "${PROJECT}" = "RPi" ]; then
-    PKG_FFMPEG_TESTING+=" --enable-vout-drm --enable-outdev=vout_drm"
-  fi
 else
   PKG_FFMPEG_TESTING="--disable-programs"
 fi
@@ -177,7 +188,6 @@ configure_target() {
               ${PKG_FFMPEG_V4L2} \
               ${PKG_FFMPEG_VAAPI} \
               ${PKG_FFMPEG_VDPAU} \
-              ${PKG_FFMPEG_RPI} \
               --enable-runtime-cpudetect \
               --disable-hardcoded-tables \
               --disable-encoders \

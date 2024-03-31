@@ -1,44 +1,48 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # Source predefined functions and variables
 . /etc/profile
 
-if [ ! -z "${1}" ] && [ -s "${1}" ]
-then
+GAME_DIR="/storage/roms/pico-8/"
+
+case ${HW_ARCH} in
+  aarch64)
+    STATIC_BIN="pico8_64"
+  ;;
+  *)
+    STATIC_BIN="pico8_dyn"
+  ;;
+esac
+
+# check if the file being launched contains "Splore" and if so launch Pico-8 Splore otherwise run the game directly
+shopt -s nocasematch
+if [[ "${1}" == *splore* ]]; then
+  OPTIONS="-splore"
+else
   OPTIONS="-run"
   CART="${1}"
+fi
+shopt -u nocasematch
+
+INTEGER_SCALE=$(get_setting pico-8.integerscale)
+if [ "${INTEGER_SCALE}" = "1" ]
+then
+  OPTIONS="${OPTIONS} -pixel_perfect 1"
+fi
+
+if [ -d "${GAME_DIR}/${HW_ARCH}" ]
+then
+  LAUNCH_DIR="${GAME_DIR}/${HW_ARCH}"
 else
-  OPTIONS="-splore"
+  LAUNCH_DIR="${GAME_DIR}"
 fi
 
-if [ "${HW_ARCH}" = "aarch64" ]
-then
-  STATIC_BIN="pico8_64"
-elif [ "${HW_ARCH}" = "x86_64" ]
-then
-  STATIC_BIN="pico8"
-fi
+# store sdl_controllers in root directory so its shared across devices - will look to revisit this with controller refactor work
+cp -f /usr/config/SDL-GameControllerDB/gamecontrollerdb.txt ${GAME_DIR}/sdl_controllers.txt
 
-cp -f /usr/config/SDL-GameControllerDB/gamecontrollerdb.txt /storage/roms/pico-8/sdl_controllers.txt
-
-if [ -e "/storage/roms/pico-8/${STATIC_BIN}" ]
-then
-  jslisten set "${STATIC_BIN}"
-  /storage/roms/pico-8/${STATIC_BIN} -home -root_path /storage/roms/pico-8 -joystick 0 ${OPTIONS} "${CART}"
-  exit
-fi
-
-if [ -e "/storage/roms/pico-8/pico8_dyn" ] || [ ! "$?" = 0 ]
-then
-  jslisten set "pico8_dyn"
-  /storage/roms/pico-8/pico8_dyn -home -root_path /storage/roms/pico-8 -joystick 0 ${OPTIONS} "${CART}"
-  exit
-else
-  text_viewer -e -w -t "Missing Pico-8 binaries!" -m "Extract your purchased pico8 package into the pico-8 directory on your games partition."
-fi
-
-ret_error=$?
-
-exit $ret_error
+# mark the binary executable to cover cases where the user adding the binaries doesn't know or forgets.
+chmod 0755 ${LAUNCH_DIR}/${STATIC_BIN}
+set_kill set "-9 ${STATIC_BIN} start_pico8.sh"
+${LAUNCH_DIR}/${STATIC_BIN} -home -root_path ${GAME_DIR} -joystick 0 ${OPTIONS} "${CART}"

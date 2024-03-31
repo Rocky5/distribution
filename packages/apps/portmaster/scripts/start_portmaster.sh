@@ -1,56 +1,78 @@
 #!/bin/bash
 
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2023-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
+set_kill set "PortMaster"
 
 #Make sure PortMaster exists in .config/PortMaster
 if [ ! -d "/storage/.config/PortMaster" ]; then
-    mkdir -p "/storage/.config/ports/PortMaster"
+    mkdir -p "/storage/.config/PortMaster"
       cp -r "/usr/config/PortMaster" "/storage/.config/"
 fi
 
 cd /storage/.config/PortMaster
 
-#Grab the latest PortMaster.sh script
-cp /usr/config/PortMaster/PortMaster.sh PortMaster.sh
+#Grab the latest control.txt & mapper.txt, then set correct permissions
 cp /usr/config/PortMaster/control.txt control.txt
+chmod +x /storage/.config/PortMaster/control.txt
+cp /usr/config/PortMaster/mapper.txt mapper.txt
+chmod +x /storage/.config/PortMaster/mapper.txt
+
 
 #Use our gamecontrollerdb.txt
-rm gamecontrollerdb.txt
+rm -r gamecontrollerdb.txt
 ln -sf /usr/config/SDL-GameControllerDB/gamecontrollerdb.txt gamecontrollerdb.txt
 
-#Use our gptokeyb
-rm gptokeyb
-ln -sf /usr/bin/gptokeyb gptokeyb
-cp /usr/config/PortMaster/portmaster.gptk portmaster.gptk
-
-#Use our wget
-ln -sf /usr/bin/wget wget
+#Delete old PortMaster fold first (we can probably remove this later)
+if [ ! -f "/storage/roms/ports/PortMaster/pugwash" ]; then
+    rm -r /storage/roms/ports/PortMaster
+fi
 
 #Make sure roms/ports/PortMaster folder exists
 if [ ! -d "/storage/roms/ports/PortMaster" ]; then
-    mkdir -p "/storage/roms/ports/PortMaster"
+    unzip /usr/config/PortMaster/release/PortMaster.zip -d /storage/roms/ports/
+    chmod +x /storage/roms/ports/PortMaster/PortMaster.sh
 fi
 
-#Make sure libs the folder exists
-if [ ! -d "/storage/roms/ports/PortMaster/libs" ]; then
-    mkdir -p "/storage/roms/ports/PortMaster/libs"
+#We dont use tasksetter, delete it
+if [ -f /storage/roms/ports/PortMaster/tasksetter ]; then
+  rm -r /storage/roms/ports/PortMaster/tasksetter
 fi
+
+#Use PortMasters gptokeyb
+rm gptokeyb
+cp /storage/roms/ports/PortMaster/gptokeyb gptokeyb
 
 #Copy over required files for ports
 cp /storage/.config/PortMaster/control.txt /storage/roms/ports/PortMaster/control.txt
-cp /storage/.config/PortMaster/gptokeyb /storage/roms/ports/PortMaster/gptokeyb
+cp /storage/.config/PortMaster/mapper.txt /storage/roms/ports/PortMaster/mapper.txt
 cp /storage/.config/PortMaster/gamecontrollerdb.txt /storage/roms/ports/PortMaster/gamecontrollerdb.txt
-
 cp /usr/bin/oga_controls* /storage/roms/ports/PortMaster/
 
-#Delete and refrence to PortMaster.sh, we only want to use ours.
-find /storage/roms/ports -type f -name "PortMaster.sh" -delete
+#Hide PortMaster folder in ports
+if [ ! -f /storage/roms/ports/gamelist.xml ]; then
+echo "<gameList>
+	<folder>
+		<path>./PortMaster</path>
+		<name>PortMaster</name>
+		<hidden>true</hidden>
+	</folder>
+</gameList>" > /storage/roms/ports/gamelist.xml
+else
+  xmlstarlet ed --inplace -d  "/gameList/folder[name='PortMaster']" /storage/roms/ports/gamelist.xml
+  xmlstarlet ed --inplace -d  "/gameList/game[name='PortMaster']" /storage/roms/ports/gamelist.xml
+  xmlstarlet ed --inplace --subnode "/gameList" --type elem -n folder -v "" /storage/roms/ports/gamelist.xml
+  xmlstarlet ed --inplace --subnode "/gameList/folder[last()]" --type elem -n path -v "./PortMaster" /storage/roms/ports/gamelist.xml
+  xmlstarlet ed --inplace --subnode "/gameList/folder[last()]" --type elem -n name -v "PortMaster" /storage/roms/ports/gamelist.xml
+  xmlstarlet ed --inplace --subnode "/gameList/folder[last()]" --type elem -n hidden -v "true" /storage/roms/ports/gamelist.xml
+fi
+
+#Fix compatability for some portmaster ports
+/usr/bin/portmaster_compatibility.sh
 
 #Start PortMaster
-run ./PortMaster.sh 2>/dev/null
-
-#Kill gptokeyb at exit
-pkill -9 gptokeyb
+@LIBEGL@
+cd /storage/roms/ports/PortMaster
+./PortMaster.sh 2>/dev/null

@@ -1,29 +1,26 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2021-present 351ELEC (https://github.com/351ELEC)
-# Copyright (C) 2022 Fewtarius
-# Copyright (C) 2023-present brooksytech (https://github.com/brookstech)
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="gzdoom-sa"
-PKG_VERSION="d05ea1965ad1f070859806a3a67aaf5ea6c46234"
+PKG_VERSION="6ce809e"
 PKG_LICENSE="GPLv3"
 PKG_SITE="https://github.com/ZDoom/gzdoom"
 PKG_URL="${PKG_SITE}.git"
-PKG_DEPENDS_HOST="toolchain zmusic:host"
-PKG_DEPENDS_TARGET="toolchain SDL2 gzdoom-sa:host zmusic"
+PKG_GIT_CLONE_BRANCH="4.11"
+PKG_DEPENDS_HOST="toolchain SDL2:host zmusic:host libvpx:host libwebp:host"
+PKG_DEPENDS_TARGET="toolchain SDL2 gzdoom-sa:host zmusic libvpx libwebp"
 PKG_LONGDESC="GZDoom is a modder-friendly OpenGL and Vulkan source port based on the DOOM engine"
 GET_HANDLER_SUPPORT="git"
 PKG_TOOLCHAIN="cmake-make"
 
-
 pre_configure_host() {
   unset HOST_CMAKE_OPTS
-  PKG_CMAKE_OPTS_HOST=" -DZMUSIC_LIBRARIES=${TOOLCHAIN}/usr/lib/libzmusic.so \
-                        -DZMUSIC_INCLUDE_DIR=${TOOLCHAIN}/usr/include"
-}
-
-make_host() {
-  cmake . -DNO_GTK=ON
-  make
+  PKG_CMAKE_OPTS_HOST+=" -DZMUSIC_LIBRARIES=${TOOLCHAIN}/usr/lib/libzmusic.so \
+                        -DZMUSIC_INCLUDE_DIR=${TOOLCHAIN}/usr/include \
+                        -DNO_GTK=ON \
+                        -DHAVE_VULKAN=OFF \
+                        -DHAVE_GLES2=OFF"
 }
 
 makeinstall_host() {
@@ -31,11 +28,25 @@ makeinstall_host() {
 }
 
 pre_configure_target() {
+
   PKG_CMAKE_OPTS_TARGET+=" -DNO_GTK=ON \
                            -DFORCE_CROSSCOMPILE=ON \
                            -DIMPORT_EXECUTABLES=${PKG_BUILD}/.${HOST_NAME}/ImportExecutables.cmake \
                            -DCMAKE_BUILD_TYPE=Release \
                            -DZMUSIC_LIBRARIES=${SYSROOT_PREFIX}/usr/lib/libzmusic.so -DZMUSIC_INCLUDE_DIR=${SYSROOT_PREFIX}/usr/include"
+  ### Enable GLES on devices that don't support OpenGL.
+  if [ ! "${OPENGL_SUPPORT}" = "yes" ]
+  then
+    PKG_CMAKE_OPTS_TARGET+=" -DHAVE_GLES2=ON"
+  fi
+
+  ### Enable vulkan support on devices that have it available.
+  if [ "${VULKAN_SUPPORT}" = "yes" ]
+  then
+    PKG_CMAKE_OPTS_TARGET+=" -DHAVE_VULKAN=ON"
+  else
+    PKG_CMAKE_OPTS_TARGET+=" -DHAVE_VULKAN=OFF"
+  fi
 }
 
 makeinstall_target() {

@@ -1,10 +1,10 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="jelos"
 PKG_VERSION=""
 PKG_ARCH="any"
-PKG_LICENSE="apache2"
+PKG_LICENSE="GPLv2"
 PKG_SITE=""
 PKG_URL=""
 PKG_DEPENDS_TARGET="toolchain"
@@ -50,12 +50,6 @@ EOF
 post_install() {
   ln -sf jelos.target ${INSTALL}/usr/lib/systemd/system/default.target
 
-  mkdir -p ${INSTALL}/etc/profile.d
-  if [ -e "${PROJECT_DIR}/${PROJECT}/devices/${DEVICE}/device.config" ]
-  then
-    cp ${PROJECT_DIR}/${PROJECT}/devices/${DEVICE}/device.config ${INSTALL}/etc/profile.d/01-deviceconfig
-  fi
-
   if [ ! -d "${INSTALL}/usr/share" ]
   then
     mkdir "${INSTALL}/usr/share"
@@ -68,14 +62,13 @@ post_install() {
   cp ${PKG_DIR}/sources/issue ${INSTALL}/etc
   ln -s /etc/issue ${INSTALL}/etc/motd
   cat <<EOF >> ${INSTALL}/etc/issue
-==> Version: ${OS_VERSION} (${BUILD_ID:0:7})
-==> Built: ${BUILD_DATE}
+... Version: ${OS_VERSION} (${BUILD_ID:0:7})
+... Built: ${BUILD_DATE}
 
 EOF
 
   cp ${PKG_DIR}/sources/scripts/* ${INSTALL}/usr/bin
   chmod 0755 ${INSTALL}/usr/bin/* 2>/dev/null ||:
-  enable_service jelos-automount.service
 
   ### Fix and migrate to autostart package
   enable_service jelos-autostart.service
@@ -87,10 +80,11 @@ EOF
 
   ### Defaults for non-main builds.
   BUILD_BRANCH="$(git branch --show-current)"
-  if [[ ! "${BUILD_BRANCH}" =~ main ]]
+  if [ ! "${BUILD_BRANCH}" = "main" ]
   then
     sed -i "s#ssh.enabled=0#ssh.enabled=1#g" ${INSTALL}/usr/config/system/configs/system.cfg
     sed -i "s#network.enabled=0#network.enabled=1#g" ${INSTALL}/usr/config/system/configs/system.cfg
+    sed -i "s#system.loglevel=none#system.loglevel=verbose#g" ${INSTALL}/usr/config/system/configs/system.cfg
   fi
 
   ### Disable automount on AMD64

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0
-# Copyright (C) 2022-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="bsnes-lr"
-PKG_VERSION="4f4e22e83a92e2e3999e5792f52085e1ecd662e2"
+PKG_VERSION="9c688ea5cbbb0e8c586414e07305cfbdffbf83e2"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/bsnes-libretro"
 PKG_URL="${PKG_SITE}/archive/${PKG_VERSION}.tar.gz"
@@ -20,6 +20,10 @@ fi
 if [ "${OPENGLES_SUPPORT}" = yes ]; then
   PKG_DEPENDS_TARGET+=" ${OPENGLES}"
 fi
+
+pre_configure_target() {
+  sed -i 's/\-O[23]/-Ofast/' ${PKG_BUILD}/Makefile
+}
 
 makeinstall_target() {
   mkdir -p ${INSTALL}/usr/lib/libretro

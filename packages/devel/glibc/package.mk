@@ -3,7 +3,7 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="glibc"
-PKG_VERSION="2.37"
+PKG_VERSION="2.38"
 PKG_LICENSE="GPL"
 PKG_SITE="https://www.gnu.org/software/libc/"
 PKG_URL="https://ftp.gnu.org/pub/gnu/glibc/${PKG_NAME}-${PKG_VERSION}.tar.xz"
@@ -13,14 +13,20 @@ PKG_LONGDESC="The Glibc package contains the main C library."
 PKG_BUILD_FLAGS="+bfd -gold"
 
 case "${DEVICE}" in
-  RK356*)
+  RK3566-BSP*)
     OPT_ENABLE_KERNEL=4.4.0
   ;;
-  RK358*|RK3399)
+  RK358*)
     OPT_ENABLE_KERNEL=5.10.0
   ;;
   *)
     OPT_ENABLE_KERNEL=6.1.0
+  ;;
+esac
+
+case ${TARGET_ARCH} in
+  arm|aarch64)
+    PKG_PATCH_DIRS="widevine-arm"
   ;;
 esac
 
@@ -33,6 +39,7 @@ PKG_CONFIGURE_OPTS_TARGET="BASH_SHELL=/bin/sh \
                            --disable-sanity-checks \
                            --enable-add-ons \
                            --enable-bind-now \
+                           --enable-crypt \
                            --with-elf \
                            --with-tls \
                            --with-__thread \
@@ -57,8 +64,6 @@ post_unpack() {
 
 pre_configure_target() {
 # Filter out some problematic *FLAGS
-  export CFLAGS=$(echo ${CFLAGS} | sed -e "s|-ffast-math||g")
-  export CFLAGS=$(echo ${CFLAGS} | sed -e "s|-Ofast|-O3|g")
   export CFLAGS=$(echo ${CFLAGS} | sed -e "s|-O.|-O3|g")
 
   export CFLAGS=$(echo ${CFLAGS} | sed -e "s|-Wunused-but-set-variable||g")
@@ -68,8 +73,6 @@ pre_configure_target() {
     export CFLAGS=$(echo ${CFLAGS} | sed -e "s|${PROJECT_CFLAGS}||g")
   fi
 
-  export LDFLAGS=$(echo ${LDFLAGS} | sed -e "s|-ffast-math||g")
-  export LDFLAGS=$(echo ${LDFLAGS} | sed -e "s|-Ofast|-O3|g")
   export LDFLAGS=$(echo ${LDFLAGS} | sed -e "s|-O.|-O3|g")
 
   export LDFLAGS=$(echo ${LDFLAGS} | sed -e "s|-Wl,--as-needed||")
@@ -100,16 +103,6 @@ EOF
 
   # binaries to install into target
   GLIBC_INCLUDE_BIN="getent ldd locale localedef"
-
-  # glibc does not need / nor build successfully with _FILE_OFFSET_BITS or _TIME_BITS set
-  case ${ARCH} in
-    arm|aarch64)
-      export CFLAGS=$(echo ${CFLAGS} | sed -e "s|-D_FILE_OFFSET_BITS=64||g")
-      export CFLAGS=$(echo ${CFLAGS} | sed -e "s|-D_TIME_BITS=64||g")
-      export CXXFLAGS=$(echo ${CXXFLAGS} | sed -e "s|-D_FILE_OFFSET_BITS=64||g")
-      export CXXFLAGS=$(echo ${CXXFLAGS} | sed -e "s|-D_TIME_BITS=64||g")
-    ;;
-  esac
 }
 
 post_makeinstall_target() {

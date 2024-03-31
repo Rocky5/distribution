@@ -2,9 +2,13 @@
 
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2019-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
+
+gptokeyb fileman textinput &
 
 . /etc/profile
-jslisten set "killall FileMan"
+set_kill set "FileMan"
 
 fileman
+
+killall gptokeyb &

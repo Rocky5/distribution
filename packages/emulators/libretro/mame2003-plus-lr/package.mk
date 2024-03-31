@@ -2,7 +2,7 @@
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
 #      Copyright (C) 2020      351ELEC team (https://github.com/fewtarius/351ELEC)
-#      Copyright (C) 2023-present Fewtarius
+#      Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 ################################################################################
 
 PKG_NAME="mame2003-plus-lr"
-PKG_VERSION="020efc01b4117120cc04f29fdc6029aa2ff1edc9"
+PKG_VERSION="a7cb863de48247c771a0fcc71d519131eae4e9c6"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="MAME"

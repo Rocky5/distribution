@@ -1,4 +1,4 @@
-# Copyright (C) 2021-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="system-utils"
 PKG_VERSION=""
@@ -18,17 +18,18 @@ makeinstall_target() {
   mkdir -p ${INSTALL}/usr/bin
   cp ${PKG_DIR}/sources/scripts/fancontrol ${INSTALL}/usr/bin
   cp ${PKG_DIR}/sources/scripts/headphone_sense ${INSTALL}/usr/bin
-  cp ${PKG_DIR}/sources/scripts/system_utils ${INSTALL}/usr/bin
-  cp ${PKG_DIR}/sources/scripts/volume_sense ${INSTALL}/usr/bin
+  cp ${PKG_DIR}/sources/scripts/hdmi_sense ${INSTALL}/usr/bin
+  cp ${PKG_DIR}/sources/scripts/input_sense ${INSTALL}/usr/bin
   cp ${PKG_DIR}/sources/scripts/bluetooth_sense ${INSTALL}/usr/bin
   cp ${PKG_DIR}/sources/scripts/ledcontrol ${INSTALL}/usr/bin
+  cp ${PKG_DIR}/sources/scripts/turbomode ${INSTALL}/usr/bin
   if [ -d "${PKG_DIR}/sources/devices/${DEVICE}" ]
   then
     cp ${PKG_DIR}/sources/devices/${DEVICE}/* ${INSTALL}/usr/bin
     if [ -d "${PKG_DIR}/sources/autostart/${DEVICE}" ]
     then
       mkdir -p ${INSTALL}/usr/lib/autostart/${DEVICE}
-      cp ${PKG_DIR}/sources/autostart/${DEVICE}/002-overclock ${INSTALL}/usr/lib/autostart/${DEVICE}
+      cp ${PKG_DIR}/sources/autostart/${DEVICE}/* ${INSTALL}/usr/lib/autostart/${DEVICE}
       chmod 0755 ${INSTALL}/usr/lib/autostart/${DEVICE}/*
     fi
   fi

@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="powertop"
-PKG_VERSION="b6d1569203f32ec1c2aaa065d05961c552a76a6f"
+PKG_VERSION="4bdfba189864d699621708fea182db292edc9305"
 PKG_ARCH="x86_64"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/fenrus75/powertop"

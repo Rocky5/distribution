@@ -6,8 +6,7 @@
 # with 1.0.0 repeat delay is broken. test on upgrade
 
 PKG_NAME="v4l-utils"
-PKG_VERSION="1.14.2"
-PKG_SHA256="e6b962c4b1253cf852c31da13fd6b5bb7cbe5aa9e182881aec55123bae680692"
+PKG_VERSION="1.24.1"
 PKG_LICENSE="GPL"
 PKG_SITE="http://linuxtv.org/"
 PKG_URL="http://linuxtv.org/downloads/v4l-utils/${PKG_NAME}-${PKG_VERSION}.tar.bz2"
@@ -87,22 +86,22 @@ post_makeinstall_target() {
 
   # create multi keymap to support several remotes OOTB
   if [ -n "$IR_REMOTE_PROTOCOLS" -a -n "$IR_REMOTE_KEYMAPS" ]; then
-    create_multi_keymap libreelec_multi "$IR_REMOTE_PROTOCOLS" $IR_REMOTE_KEYMAPS
+    create_multi_keymap jelos_multi "$IR_REMOTE_PROTOCOLS" $IR_REMOTE_KEYMAPS
 
     # use multi-keymap instead of default one
     sed -i '/^\*\s*rc-rc6-mce\s*rc6_mce/d' ${INSTALL}/etc/rc_maps.cfg
 
     cat << EOF >> ${INSTALL}/etc/rc_maps.cfg
 #
-# Custom LibreELEC configuration starts here
+# Custom JELOS configuration starts here
 #
 # use combined multi-table on MCE receivers
 # *		rc-rc6-mce	rc6_mce
-*		rc-rc6-mce	libreelec_multi
+*		rc-rc6-mce	jelos_multi
 # table for Xbox DVD Playback Kit
 *		rc-xbox-dvd	xbox_dvd
 # multi-table for amlogic devices
-meson-ir	*		libreelec_multi
+meson-ir	*		jelos_multi
 EOF
 
   fi

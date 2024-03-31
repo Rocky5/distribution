@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="util-linux"
-PKG_VERSION="2.38.1"
+PKG_VERSION="2.39.2"
 PKG_LICENSE="GPL"
 PKG_URL="https://www.kernel.org/pub/linux/utils/util-linux/v$(get_pkg_version_maj_min)/${PKG_NAME}-${PKG_VERSION}.tar.xz"
 PKG_DEPENDS_HOST="ccache:host autoconf:host automake:host intltool:host libtool:host pkg-config:host"
@@ -61,9 +61,11 @@ if [ "${SWAP_SUPPORT}" = "yes" ]; then
   PKG_CONFIGURE_OPTS_TARGET+=" --enable-swapon"
 fi
 
-PKG_CONFIGURE_OPTS_HOST="--enable-static \
-                         --disable-shared \
-                         ${UTILLINUX_CONFIG_DEFAULT} \
+PKG_CONFIGURE_OPTS_HOST="--enable-shared \
+                         --disable-static \
+                         ${UTILLINUX_CONFIG_TARGET} \
+                         --disable-makeinstall-chown \
+                         --disable-makeinstall-setuid \
                          --enable-uuidgen \
                          --enable-rename \
                          --enable-libuuid"
@@ -79,8 +81,8 @@ fi
 
 post_makeinstall_target() {
   if [ "${SWAP_SUPPORT}" = "yes" ]; then
-    mkdir -p ${INSTALL}/usr/lib/libreelec
-      cp -PR ${PKG_DIR}/scripts/mount-swap ${INSTALL}/usr/lib/libreelec
+    mkdir -p ${INSTALL}/usr/lib/jelos
+      cp -PR ${PKG_DIR}/scripts/mount-swap ${INSTALL}/usr/lib/jelos
 
     mkdir -p ${INSTALL}/etc
       cat ${PKG_DIR}/config/swap.conf | \

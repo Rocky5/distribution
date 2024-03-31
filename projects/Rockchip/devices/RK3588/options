@@ -34,14 +34,9 @@
 
   # Single dtb settings
     TRUST_LABEL="trust"
-    DEVICE_DTB=("rk3588s-orangepi-5")
+    DEVICE_DTB=("rk3588s-gameforce-ace" "rk3588s-orangepi-5" "rk3588-rock-5b")
     UBOOT_DTB="${DEVICE_DTB[0]}"
     
-  # Multi dtb settings
-    #TRUST_LABEL="resource"
-    #DEVICE_DTB=("rk3588s-orangepi-5" "rk3588-rock-5b" "rk3588s-indiedroid-nova")
-    #UBOOT_DTB="rk3588-evb"
-
     UBOOT_CONFIG="orangepi_5_defconfig"
     PKG_SOC="rk3588"
     PKG_DATAFILE="${PKG_RKBIN}/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.11.bin"
@@ -74,20 +69,21 @@
     WINDOWMANAGER="weston"
   
   # kernel serial console
-    EXTRA_CMDLINE="rootwait quiet loglevel=0 console=ttyUSB0,1500000 console=tty0 coherent_pool=2M ssh consoleblank=0 panic=20"
+    EXTRA_CMDLINE="rootwait quiet systemd.debug_shell=ttyFIQ0 earlycon=uart8250,mmio32,0xfeb50000 console=ttyFIQ0 console=tty0 coherent_pool=2M fbcon=rotate:1"
 
   # additional packages to install
   #  ADDITIONAL_PACKAGES=""
 
-  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # additional Firmware to use ( )
   # Space separated list is supported,
-  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware libmali_rk3588 RTL8821CS-firmware"
+  # e.g. FIRMWARE=""
+    FIRMWARE="libmali_rk3588 RTL8821CS-firmware ap6256-firmware"
 
   # additional drivers to install:
   # for a list of additional drivers see packages/linux-drivers
   # Space separated list is supported,
   # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
+    ADDITIONAL_DRIVERS+=" RTW89"
 
   # build and install driver addons (yes / no)
     DRIVER_ADDONS_SUPPORT="no"
@@ -100,11 +96,11 @@
   # debug tty path
     DEBUG_TTY="/dev/ttyFIQ0"
 
-  # build and install PulseAudio support (yes / no)
-    PULSEAUDIO_SUPPORT="yes"
- 
+  # Disable 32BIT support
+    ENABLE_32BIT="true"
+
   # build and install bluetooth support (yes / no)
-    BLUETOOTH_SUPPORT="no"
+    BLUETOOTH_SUPPORT="yes"
 
   # build and install Avahi (Zeroconf) daemon (yes / no)
     AVAHI_DAEMON="no"
@@ -120,6 +116,9 @@
 
   # build and install SFTP Server (yes / no)
     SFTP_SERVER="yes"
+
+  # build and install Simple HTTP Server (yes / no)
+    SIMPLE_HTTP_SERVER="yes"
 
   # build and install OpenVPN support (yes / no)
     OPENVPN_SUPPORT="no"
@@ -153,6 +152,9 @@
 
   # swapfile size if SWAP_SUPPORT=yes in MB
     SWAPFILESIZE="384"
+
+  # Some devices have internal storage.
+    INSTALLER_SUPPORT="yes"
 
   # cron support (yes / no)
     CRON_SUPPORT="no"

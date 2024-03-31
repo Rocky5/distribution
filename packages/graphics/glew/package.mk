@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2022-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="glew"
 PKG_VERSION="2.2.0"
@@ -11,7 +11,7 @@ PKG_SHORTDESC="GLEW - The OpenGL Extension Wrangler Library"
 PKG_TOOLCHAIN="cmake"
 
 if [ "${DISPLAYSERVER}" = "wl" ]; then
-  PKG_DEPENDS_TARGET+=" wayland ${WINDOWMANAGER} xorg-server xrandr libXi libX11"
+  PKG_DEPENDS_TARGET+=" wayland ${WINDOWMANAGER} xwayland xrandr libXi libX11"
   PKG_CMAKE_OPTS_TARGET+=" -DGLEW_X11=ON"
 fi
 

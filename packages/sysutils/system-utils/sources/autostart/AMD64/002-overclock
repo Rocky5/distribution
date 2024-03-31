@@ -1,16 +1,19 @@
-#!/bin/sh
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2021-present Fewtarius (https://github.com/fewtarius)
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
-. /etc/profile
+. /etc/profile.d/001-functions
 
-tocon "Configuring system TDP..."
-
-# If there is no defined overclock, make sure it's "off".
-OVERCLOCK=$(get_setting system.overclock)
-if [ -z ${OVERCLOCK} ]
-then
-  set_setting system.overclock off
-fi
-
-/usr/bin/overclock boot
+CPU_VENDOR=$(cpu_vendor)
+case ${CPU_VENDOR} in
+  AuthenticAMD)
+    tocon "Configuring system TDP..."
+    # If there is no defined overclock, make sure it's "off".
+    OVERCLOCK=$(get_setting system.overclock)
+    if [ -z ${OVERCLOCK} ]
+    then
+      set_setting system.overclock off
+    fi
+    /usr/bin/overclock boot
+  ;;
+esac

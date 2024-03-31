@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2022-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="parallel-n64-lr"
-PKG_VERSION="a03fdcba6b2e9993f050b50112f597ce2f44fa2c"
+PKG_VERSION="1b57f9199b1f8a4510f7f89f14afa9cabf9b3bdd"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/parallel-n64"
@@ -21,10 +21,16 @@ if [ "${OPENGLES_SUPPORT}" = yes ]; then
   PKG_DEPENDS_TARGET+=" ${OPENGLES}"
 fi
 
+if [ "${VULKAN_SUPPORT}" = "yes" ]; then
+  PKG_MAKE_OPTS_TARGET+=" HAVE_PARALLEL=1"
+fi
+
 case ${DEVICE} in
   RK3*|S922X*)
-    PKG_MAKE_OPTS_TARGET=" platform=${DEVICE}"
+    PKG_MAKE_OPTS_TARGET+=" platform=${DEVICE}"
   ;;
+  AMD64)
+    PKG_MAKE_OPTS_TARGET+=" HAVE_PARALLEL_RSP=1"
 esac
 
 makeinstall_target() {

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="elfutils"
-PKG_VERSION="0.189"
+PKG_VERSION="0.190"
 PKG_LICENSE="GPL"
 PKG_SITE="https://sourceware.org/elfutils/"
 PKG_URL="https://sourceware.org/elfutils/ftp/${PKG_VERSION}/${PKG_NAME}-${PKG_VERSION}.tar.bz2"
@@ -13,14 +13,6 @@ PKG_DEPENDS_TARGET="toolchain zlib elfutils:host"
 PKG_LONGDESC="A collection of utilities to handle ELF objects."
 PKG_TOOLCHAIN="autotools"
 PKG_BUILD_FLAGS="+pic"
-
-if [ "${LIBREELEC_VERSION}" = "devel" ]; then
-  PKG_PROGRAMS="--enable-programs --program-prefix="
-  PKG_PROGRAMS_LIST="readelf"
-else
-  PKG_PROGRAMS="--disable-programs"
-  PKG_PROGRAMS_LIST=
-fi
 
 PKG_CONFIGURE_OPTS_HOST="utrace_cv_cc_biarch=false \
                          --disable-programs \
@@ -32,8 +24,9 @@ PKG_CONFIGURE_OPTS_HOST="utrace_cv_cc_biarch=false \
                          --without-lzma"
 
 PKG_CONFIGURE_OPTS_TARGET="utrace_cv_cc_biarch=false \
-                           ${PKG_PROGRAMS} \
+                           --disable-programs \
                            --disable-nls \
+                           --disable-demangler \
                            --disable-debuginfod \
                            --disable-libdebuginfod \
                            --with-zlib \

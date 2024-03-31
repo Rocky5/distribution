@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="minivmacsa"
 PKG_VERSION="37.03"
@@ -11,14 +11,14 @@ PKG_DEPENDS_TARGET="toolchain libX11"
 PKG_PRIORITY="optional"
 PKG_SECTION="emulators"
 PKG_SHORTDESC="Virtual Macintosh Plus"
-PKG_TOOLCHAIN="manual"
+PKG_TOOLCHAIN="make"
 
-make_target() {
+pre_make_target() {
   cd ${PKG_BUILD}
-  gcc setup/tool.c -o setup_t
+  ${TOOLCHAIN}/bin/host-gcc setup/tool.c -o setup_t
   ./setup_t -t lx64 -fullscreen 1 > setup.sh
   . setup.sh
-  make
+  sed -i "s|gcc|${TARGET_PREFIX}gcc|" ${PKG_BUILD}/Makefile
 }
 
 makeinstall_target() {

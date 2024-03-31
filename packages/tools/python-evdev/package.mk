@@ -3,7 +3,7 @@
 # Copyright (C) 2018-present 5schatten (https://github.com/5schatten)
 
 PKG_NAME="python-evdev"
-PKG_VERSION="2dd6ce6364bb67eedb209f6aa0bace0c18a3a40a"
+PKG_VERSION="c688c9e63c535f3a9e0fae4930315ef432d09384"
 PKG_LICENSE="OSS"
 PKG_SITE="https://github.com/gvalkov/python-evdev"
 PKG_URL="${PKG_SITE}.git"
@@ -33,6 +33,6 @@ makeinstall_target() {
 post_makeinstall_target() {
   for so in _ecodes _input _uinput
   do
-    mv ${INSTALL}/usr/lib/${PKG_PYTHON_VERSION}/site-packages/evdev/${so}.cpython-311-x86_64-linux-gnu.so ${INSTALL}/usr/lib/${PKG_PYTHON_VERSION}/site-packages/evdev/${so}.cpython-311-aarch64-linux-gnu.so
+    mv ${INSTALL}/usr/lib/${PKG_PYTHON_VERSION}/site-packages/evdev/${so}.cpython-311-x86_64-jelos-linux-gnu.so ${INSTALL}/usr/lib/${PKG_PYTHON_VERSION}/site-packages/evdev/${so}.cpython-311-aarch64-jelos-linux-gnu.so
   done
 }

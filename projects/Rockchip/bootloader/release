@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2017-2021 Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2021-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 mkdir -p ${RELEASE_DIR}/3rdparty/bootloader
 if [ -n "${UBOOT_CONFIG}" ]; then
@@ -11,17 +11,30 @@ if [ -n "${UBOOT_CONFIG}" ]; then
   fi
   case "${PKG_SOC}" in
     rk35*)
-      if [ -f ${BOOTLOADER_DIR}/u-boot.itb ]; then
-        cp -a ${BOOTLOADER_DIR}/u-boot.itb ${RELEASE_DIR}/3rdparty/bootloader
-      fi
+      for BOOT_IMAGE in u-boot.itb u-boot.img
+      do
+        if [ -f "${BOOTLOADER_DIR}/${BOOT_IMAGE}" ]; then
+          cp -a ${BOOTLOADER_DIR}/${BOOT_IMAGE} ${RELEASE_DIR}/3rdparty/bootloader
+          break
+        fi
+      done
       if [ -f ${KERNEL_DIR}/resource.img ]; then
         cp -a ${KERNEL_DIR}/resource.img ${RELEASE_DIR}/3rdparty/bootloader
       fi
     ;;
+    rk3399)
+      if [ -f ${BOOTLOADER_DIR}/rk3399-uboot.bin ]; then
+        cp -a ${BOOTLOADER_DIR}/rk3399-uboot.bin ${RELEASE_DIR}/3rdparty/bootloader
+      fi 
+    ;;
     *)
-      if [ -f ${BOOTLOADER_DIR}/uboot.img ]; then
-        cp -a ${BOOTLOADER_DIR}/uboot.img ${RELEASE_DIR}/3rdparty/bootloader
-      fi
+      for BOOT_IMAGE in u-boot.itb u-boot.img
+      do
+        if [ -f "${BOOTLOADER_DIR}/${BOOT_IMAGE}" ]; then
+          cp -a ${BOOTLOADER_DIR}/${BOOT_IMAGE} ${RELEASE_DIR}/3rdparty/bootloader
+          break
+        fi
+      done
       if [ -f ${BOOTLOADER_DIR}/trust.img ]; then
         cp -a ${BOOTLOADER_DIR}/trust.img ${RELEASE_DIR}/3rdparty/bootloader
       fi
@@ -30,6 +43,10 @@ fi
 
 if [ -f ${INSTALL}/usr/share/bootloader/boot.ini ]; then
   cp -a ${INSTALL}/usr/share/bootloader/boot.ini ${RELEASE_DIR}/3rdparty/bootloader
+fi
+
+if [ -f ${INSTALL}/usr/share/bootloader/boot.scr ]; then
+  cp -a ${INSTALL}/usr/share/bootloader/boot.scr ${RELEASE_DIR}/3rdparty/bootloader
 fi
 
 LINUX_DTS_DIR=$(get_build_dir linux)/arch/${TARGET_KERNEL_ARCH}/boot/dts/

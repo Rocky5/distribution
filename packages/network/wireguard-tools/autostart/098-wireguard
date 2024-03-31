@@ -1,11 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2021-present kkoshelev (https://github.com/kkoshelev)
 
-. /etc/profile
+# Minimal OS variable loading for performance
+. /etc/profile.d/001-functions
 
-if [ "$(get_setting wireguard.up)" == "1" ]
-then
-  tocon "Enabling wireguard..."
-  nohup wg-quick up /storage/.config/wireguard/wg0.conf &
-fi
+(
+  if [ "$(get_setting wireguard.up)" == "1" ]
+  then
+    tocon "Enabling wireguard..."
+    nohup wg-quick up /storage/.config/wireguard/wg0.conf &
+  fi
+) &

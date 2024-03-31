@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 0riginally created by Escalade (https://github.com/escalade)
 # Copyright (C) 2018-present 5schatten (https://github.com/5schatten)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="pyudev"
-PKG_VERSION="96df1bd"
+PKG_VERSION="5e00141"
 PKG_LICENSE="OSS"
 PKG_SITE="https://github.com/pyudev/pyudev"
 PKG_URL="https://github.com/pyudev/pyudev/archive/${PKG_VERSION}.tar.gz"

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="apitrace"
-PKG_VERSION="ff63667f67825f81a2021560db8a1b46d50fc0af"
+PKG_VERSION="c314a74227d658db08077d685a83e1246e0c13a7"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/apitrace/apitrace"
 PKG_URL="${PKG_SITE}.git"

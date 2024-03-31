@@ -2,7 +2,7 @@
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
 #      Copyright (C) 2020 351ELEC team (https://github.com/fewtarius/351ELEC)
-#      Copyright (C) 2022-present Fewtarius
+#      Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 ################################################################################
 
 PKG_NAME="vice-lr"
-PKG_VERSION="83c501343f1976628c2647ac203700643a55351a"
+PKG_VERSION="4dba89f8d04aa0499eef05ea00f7a7bf265863f7"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
@@ -32,16 +32,9 @@ PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="Versatile Commodore 8-bit Emulator version 3.0"
 PKG_LONGDESC="Versatile Commodore 8-bit Emulator version 3.0"
-
-PKG_IS_ADDON="no"
 PKG_TOOLCHAIN="make"
-PKG_AUTORECONF="no"
-PKG_BUILD_FLAGS="-lto"
 
 make_target() {
-  if [ "${ARCH}" == "arm" ]; then
-    CFLAGS="${CFLAGS} -DARM -DALIGN_DWORD -mstructure-size-boundary=32 -mthumb-interwork -falign-functions=16 -marm"
-  fi
   if [ ! -d "built" ]
   then
     mkdir built

@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="modules"
 PKG_VERSION=""
@@ -13,6 +13,11 @@ PKG_LONGDESC="OS Modules Package"
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 PKG_TOOLCHAIN="manual"
+
+###
+### Note: Start scripts for emulators have been moved to
+### packages/virtual/emulators.
+###
 
 make_target() {
   :
@@ -30,15 +35,19 @@ post_makeinstall_target() {
       rm -f ${INSTALL}/usr/config/modules/*32bit*
       rm -f ${INSTALL}/usr/config/modules/*Master*
     ;;
-    *)
-      rm -f ${INSTALL}/usr/config/modules/Install*
-    ;;
   esac
+
   case ${DEVICE} in
     S922X*)
       rm -f ${INSTALL}/usr/config/modules/*ScummVM*
       rm -f ${INSTALL}/usr/config/modules/*32bit*
     ;;
   esac
+
+  if [ ! "${INSTALLER_SUPPORT}" = "yes" ] || \
+     [ ! "${DISPLAYSERVER}" = "wl" ]
+  then
+    rm -f ${INSTALL}/usr/config/modules/Install*
+  fi
 }
 

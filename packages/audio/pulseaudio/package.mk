@@ -3,20 +3,12 @@
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="pulseaudio"
-PKG_VERSION="15.0"
-PKG_SHA256="a40b887a3ba98cc26976eb11bdb6613988f145b19024d1b6555c6a03c9cba1a0"
+PKG_VERSION="17.0"
 PKG_LICENSE="GPL"
 PKG_SITE="http://pulseaudio.org/"
 PKG_URL="http://www.freedesktop.org/software/pulseaudio/releases/${PKG_NAME}-${PKG_VERSION}.tar.xz"
-PKG_DEPENDS_TARGET="toolchain alsa-lib dbus libcap libsndfile libtool openssl soxr speexdsp systemd glib:host glib"
+PKG_DEPENDS_TARGET="toolchain libcap libsndfile libtool soxr speexdsp glib:host glib"
 PKG_LONGDESC="PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for your sound applications."
-
-if [ "${BLUETOOTH_SUPPORT}" = "yes" ]; then
-  PKG_DEPENDS_TARGET+=" sbc bluez"
-  PKG_PULSEAUDIO_BLUETOOTH="-Dbluez5=enabled"
-else
-  PKG_PULSEAUDIO_BLUETOOTH="-Dbluez5=disabled"
-fi
 
 if [ "${AVAHI_DAEMON}" = "yes" ]; then
   PKG_DEPENDS_TARGET+=" avahi"
@@ -25,7 +17,7 @@ else
   PKG_PULSEAUDIO_AVAHI="-Davahi=disabled"
 fi
 
-PKG_MESON_OPTS_TARGET="-Ddaemon=true \
+PKG_MESON_OPTS_TARGET="-Ddaemon=false \
                        -Ddoxygen=false \
                        -Dgcov=false \
                        -Dman=false \
@@ -41,14 +33,12 @@ PKG_MESON_OPTS_TARGET="-Ddaemon=true \
                        -Datomic-arm-memory-barrier=false \
                        -Dmodlibexecdir=/usr/lib/pulse \
                        -Dudevrulesdir=/usr/lib/udev/rules.d \
-                       -Dalsa=enabled \
+                       -Dalsa=disabled \
                        -Dasyncns=disabled \
                        ${PKG_PULSEAUDIO_AVAHI} \
-                       ${PKG_PULSEAUDIO_BLUETOOTH} \
+                       -Dbluez5=disabled
                        -Dbluez5-gstreamer=disabled \
-                       -Dbluez5-native-headset=true \
-                       -Dbluez5-ofono-headset=true \
-                       -Ddbus=enabled \
+                       -Ddbus=disabled \
                        -Delogind=disabled \
                        -Dfftw=disabled \
                        -Dglib=enabled \
@@ -59,15 +49,15 @@ PKG_MESON_OPTS_TARGET="-Ddaemon=true \
                        -Dipv6=true \
                        -Djack=disabled \
                        -Dlirc=disabled \
-                       -Dopenssl=enabled \
+                       -Dopenssl=disabled \
                        -Dorc=disabled \
                        -Doss-output=disabled \
                        -Dsamplerate=disabled \
                        -Dsoxr=enabled \
                        -Dspeex=enabled \
-                       -Dsystemd=enabled \
+                       -Dsystemd=disabled \
                        -Dtcpwrap=disabled \
-                       -Dudev=enabled \
+                       -Dudev=disabled \
                        -Dvalgrind=disabled \
                        -Dx11=disabled \
                        -Dadrian-aec=true \
@@ -82,23 +72,17 @@ post_makeinstall_target() {
   safe_remove ${INSTALL}/usr/include
   safe_remove ${INSTALL}/usr/lib/cmake
   safe_remove ${INSTALL}/usr/lib/pkgconfig
-  safe_remove ${INSTALL}/usr/lib/systemd
   safe_remove ${INSTALL}/usr/share/vala
   safe_remove ${INSTALL}/usr/share/zsh
   safe_remove ${INSTALL}/usr/share/bash-completion
 
   cp ${PKG_DIR}/config/system.pa ${INSTALL}/etc/pulse/
 
-  sed 's/user="pulse"/user="root"/' -i ${INSTALL}/etc/dbus-1/system.d/pulseaudio-system.conf
-
-  mkdir -p ${INSTALL}/usr/config
-    cp -PR ${PKG_DIR}/config/pulse-daemon.conf.d ${INSTALL}/usr/config
-
-  ln -sf /storage/.config/pulse-daemon.conf.d ${INSTALL}/etc/pulse/daemon.conf.d
   mkdir -p ${INSTALL}/etc/ld.so.conf.d
   echo "/usr/lib/pulseaudio" >${INSTALL}/etc/ld.so.conf.d/${ARCH}-lib-pulseaudio.conf
 }
 
-post_install() {
-  enable_service pulseaudio.service
-}
+# Deprecated by pipewire
+#post_install() {
+#  enable_service pulseaudio.service
+#}

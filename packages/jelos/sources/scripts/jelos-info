@@ -2,17 +2,18 @@
 
 source /etc/profile
 
-### Load quirks so we can display device specific info when it exists.
+### Apply device quirks
 if [ -e "/sys/firmware/devicetree/base/model" ]
 then
-  QUIRK_DEVICE=$(cat /sys/firmware/devicetree/base/model 2>/dev/null)
+  export QUIRK_DEVICE="$(tr -d '\0' </sys/firmware/devicetree/base/model 2>/dev/null)"
 else
-  QUIRK_DEVICE="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null) $(cat /sys/class/dmi/id/product_name 2>/dev/null)"
+  export QUIRK_DEVICE="$(tr -d '\0' </sys/class/dmi/id/sys_vendor 2>/dev/null) $(tr -d '\0' </sys/class/dmi/id/product_name 2>/dev/null)"
 fi
-QUIRK_DEVICE="$(echo ${QUIRK_DEVICE} | sed -e "s#[/]#-#g")"
+export QUIRK_DEVICE="$(echo ${QUIRK_DEVICE} | sed -e "s#[/]#-#g")"
 
 info_quirks() {
-  for QUIRK in /usr/lib/autostart/quirks/"${QUIRK_DEVICE}"/info.d/${1}/*
+  for QUIRK in /usr/lib/autostart/quirks/platforms/"${HW_DEVICE}"/info.d/${1}/* \
+               /usr/lib/autostart/quirks/devices/"${QUIRK_DEVICE}"/info.d/${1}/*
   do
     "${QUIRK}" 2>/dev/null
   done
@@ -21,7 +22,7 @@ info_quirks() {
 ### short version (for osd)
 if test "$1" = "--short"
 then
-    BATT=$(cat /sys/class/power_supply/{BAT,bat}*/uevent 2>/dev/null | grep -E "^POWER_SUPPLY_CAPACITY=" | sed -e s+'^POWER_SUPPLY_CAPACITY='++ | sort -rn | head -1)
+    BATT=$(awk 'BEGIN {FS="="} /POWER_SUPPLY_CAPACITY=/ {print $2; exit}' /sys/class/power_supply/[Bb][Aa][Tt]*/uevent 2>/dev/null)
     DT=$(date +%H:%M)
     if test -n "${BATT}"
     then
@@ -41,23 +42,7 @@ V_ARCH=$(uname -m)
 [[ "$V_CPUMODEL1" ]] || V_CPUMODEL1="${HW_CPU}"
 
 # battery
-BATT=$(cat /sys/class/power_supply/{BAT,bat}*/uevent 2>/dev/null | grep -E "^POWER_SUPPLY_CAPACITY=" | sed -e s+'^POWER_SUPPLY_CAPACITY='++ | sort -rn | head -1)
-
-# PAD Battery
-for PADBAT in /sys/class/power_supply/*/device/uevent
-do
-    # HID devices only
-    PADNAME=$(grep -E '^HID_NAME=' "${PADBAT}" | sed -e s+'^HID_NAME='++)
-    if test -n "${PADNAME}"
-    then
-	# parent of parent / uevent
-	BATTUEVENT=$(dirname "${PADBAT}")
-	BATTUEVENT=$(dirname "${BATTUEVENT}")/uevent
-	BATT=$(grep -E "^POWER_SUPPLY_CAPACITY=" "${BATTUEVENT}" | sed -e s+'^POWER_SUPPLY_CAPACITY='++ | sort -rn | head -1)
-	echo "${PADNAME}: ${BATT}%"
-    fi
-done
-
+BATT=$(awk 'BEGIN {FS="="} /POWER_SUPPLY_CAPACITY=/ {print $2; exit}' /sys/class/power_supply/[Bb][Aa][Tt]*/uevent 2>/dev/null)
 
 case ${HW_ARCH} in
   aarch64)
@@ -75,58 +60,63 @@ case ${HW_ARCH} in
         CF+=("CURRENT FREQUENCY:")
         MF+=("MAXIMUM FREQUENCY:")
       fi
-      RELCPUS=$(cat ${CPUFREQ}/related_cpus)
+      RELCPUS=$(cat ${CPUFREQ}/related_cpus 2>/dev/null)
       if [ "${#RELCPUS}" -gt 1 ]
       then
         FIELD="$(cat ${CPUFREQ}/related_cpus 2>/dev/null | awk '{print $1"-"$NF}')"
       else
-        FIELD="$(cat ${CPUFREQ}/related_cpus)"
+        FIELD="$(cat ${CPUFREQ}/related_cpus 2>/dev/null)"
       fi
-      CF+=("THREADS ${FIELD}: $(( $(cat ${CPUFREQ}/scaling_cur_freq | sort | tail -n 1) / 1000))MHz")
-      MF+=("THREADS ${FIELD}: $(( $(cat ${CPUFREQ}/scaling_max_freq | sort | tail -n 1) / 1000))MHz")
+      CF+=("THREADS ${FIELD}: $(( $(cat ${CPUFREQ}/scaling_cur_freq 2>/dev/null | sort | tail -n 1) / 1000))MHz")
+      MF+=("THREADS ${FIELD}: $(( $(cat ${CPUFREQ}/scaling_max_freq 2>/dev/null | sort | tail -n 1) / 1000))MHz")
       CNTR=$(( CNTR + 1 ))
     done
   ;;
 esac
 
-# temperature
-# Unit: millidegree Celsius
-if [ -e "${DEVICE_TEMP_SENSOR}" ]
-then
-  TEMPE=$(cat ${DEVICE_TEMP_SENSOR} 2>/dev/null | sort -rn | head -1 | sed -e s+"[0-9][0-9][0-9]$"++)
-fi
 echo "SYSTEM INFORMATION:"
+echo "DEVICE: ${QUIRK_DEVICE}"
 echo "OPERATING SYSTEM: ${OS_NAME}"
 echo "VERSION: ${OS_VERSION}"
 echo "BUILD ID: ${BUILD_ID:0:7} (${BUILD_BRANCH})"
 echo "KERNEL: ${V_SYSTEM} ($(uname -m))"
 echo "DISK SPACE:"
 echo "/storage: $(df -h /storage | awk '/dev/ {print $3"/"$2" ("$5")"}')"
-echo "/storage/roms: $(df -h /storage/roms | awk '/dev/ {print $3"/"$2" ("$5")"}')"
+echo "/storage/games-internal: $(df -h /storage/games-internal | awk '/dev/ {print $3"/"$2" ("$5")"}')"
+echo "/storage/games-external: $(df -h /storage/games-external | awk '/dev/ {print $3"/"$2" ("$5")"}')"
 
 if test -n "${BATT}"
 then
     echo "BATTERY INFORMATION:"
     echo "BATTERY REMAINING: ${BATT}%"
-    BATPATH="/sys/class/power_supply/$(ls /sys/class/power_supply/ | grep -i bat | tail -n 1)"
-    if [ -e "${BATPATH}/health" ]
+    BAT_HEALTH=$(cat /sys/class/power_supply/[Bb][Aa][Tt]*/health 2>/dev/null)
+    if [ -n "${BAT_HEALTH}" ]
     then
-      echo "BATTERY HEALTH: $(cat ${BATPATH}/health)"
+      echo "BATTERY HEALTH: ${BAT_HEALTH}"
     fi
-    if [ -e "${BATPATH}/status" ]
+    BAT_STATUS=$(cat /sys/class/power_supply/[Bb][Aa][Tt]*/status 2>/dev/null)
+    if [ -n "${BAT_STATUS}" ]
     then
-      echo "BATTERY STATE: $(cat ${BATPATH}/status)"
+      echo "BATTERY STATE: ${BAT_STATUS}"
     fi
 fi
 echo "CPU INFORMATION:"
 echo "CPU: ${V_CPUMODEL1} (${V_CPUNB} Cores)"
-if test -n "${TEMPE}"
+
+# temperature
+# Unit: millidegree Celsius
+if [ -n "${DEVICE_TEMP_SENSOR}" ]
 then
+  TEMPE=$(printf "%.0f" $(awk '{ total += $1; count++ } END { print total/count }' ${DEVICE_TEMP_SENSOR} 2>/dev/null) 2>/dev/null | sed -e s+"[0-9][0-9][0-9]$"++)
+  if [ -n "${TEMPE}" ]
+  then
     echo "CPU TEMPERATURE: ${TEMPE}°"
+  fi
 fi
+
 if [ "${DEVICE_HAS_FAN}" = "true" ]
 then
-  FANSPEED=$(cat ${DEVICE_PWM_FAN} 2>/dev/null)
+  FANSPEED=$(cat ${DEVICE_FAN_INPUT} 2>/dev/null)
   if [ "${FANSPEED}" = "0" ]
   then
     FANSPEED="OFF"

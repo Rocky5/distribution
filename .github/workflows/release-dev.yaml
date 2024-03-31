@@ -1,13 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2021-present 351ELEC
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 ### Based on work by @pkegg
 
 name: release-dev
 on:
-  schedule:
-    - cron:  '0 3 * * *'
   workflow_dispatch:
 env:
   BRANCH: dev

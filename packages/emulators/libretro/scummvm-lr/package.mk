@@ -1,7 +1,7 @@
 ################################################################################
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
-#      Copyright (C) 2022-present Fewtarius
+#      Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 ################################################################################
 
 PKG_NAME="scummvm-lr"
-PKG_VERSION="0c3e3aaebcaf23de7175a9df5e5c0e13ad2551fd"
+PKG_VERSION="6fa7403b8b1b6e18e3a3d02120b38aad6a73ad26"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2022-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="gst-plugins-bad"
 PKG_VERSION=""
@@ -182,7 +182,7 @@ pre_configure_target() {
                          -Dglib-asserts=disabled \
                          -Dglib-checks=disabled \
                          -Dpackage-name=gst-plugins-bad \
-                         -Dpackage-origin=LibreELEC.tv \
+                         -Dpackage-origin=jelos.org \
                          -Ddoc=disabled"
 }
 

@@ -1,1 +1,1 @@
-documentation/CONTRIBUTING.md
+Moved to [https://jelos.org/contribute/](https://jelos.org/contribute/)

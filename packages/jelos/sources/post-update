@@ -1,6 +1,6 @@
 #!/bin/bash
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2021-present Fewtarius (https://github.com/fewtarius)
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
 
@@ -13,11 +13,13 @@ LOG="/var/log/boot.log"
 ################################################################################
 
 echo "Rebuild library cache..." >>${LOG}
+tocon "Rebuilding library cache..."
 ### Rebuild the library cache
 rm -f /storage/.cache/ld.so.cache
 ldconfig -X
 
 echo "Sync configuration files..." >>${LOG}
+tocon "Re-sync configuration files..."
 ### Sync configurations
 if [ -d "/storage/.config/system/configs" ]
 then
@@ -35,47 +37,13 @@ rsync -a --delete ${EXCLUDE} /usr/config/system/ /storage/.config/system/
 rsync -a --ignore-existing /usr/config/game /storage/.config/
 rsync -a /usr/config/modules /storage/.config/
 
-echo "Update logo..." >>${LOG}
-FBWIDTH=$(fbset | awk '/geometry/ {print $2}')
-FBHEIGHT=$(fbset | awk '/geometry/ {print $3}')
-
-ASPECT=$(printf "%.2f" $(echo "(${FBWIDTH} / ${FBHEIGHT})" | bc -l))
-
-case ${ASPECT} in
-  1.50|0.67)
-   ASPECT="3:2"
-  ;;
-  1.33|0.75)
-   ASPECT="4:3"
-  ;;
-  1.67|0.60)
-   ASPECT="5:3"
-  ;;
-  1.76|0.56)
-   ASPECT="16:9"
-  ;;
-esac
-
 if [ -f "/storage/.config/emulationstation/resources/logo.png" ]
 then
-  rm -f /storage/.config/emulationstation/resources/logo.png ||:
+  rm -f /storage/.config/emulationstation/resources/logo.png
 fi
 
-convert /usr/config/splash/splash.png \
-        -gravity center \
-        -crop ${ASPECT} +repage \
-        /tmp/.logo.png
-
-convert /tmp/.logo.png \
-        -quality 100 \
-        -resize ${FBWIDTH}x${FBHEIGHT} \
-        -background black \
-        -gravity center \
-        /storage/.config/emulationstation/resources/logo.png
-
-rm -f /tmp/.logo.png
-
 echo "Sync modules..." >>${LOG}
+tocon "Update tool modules..."
 rsync -a /usr/config/modules/* /storage/.config/modules/
 cp -f /usr/config/retroarch/retroarch-core-options.cfg /storage/.config/retroarch/retroarch-core-options.cfg
 
@@ -83,6 +51,7 @@ cp -f /usr/config/retroarch/retroarch-core-options.cfg /storage/.config/retroarc
 echo "Apply dev keys if available..." >>${LOG}
 if [ -e /usr/config/ssh/authorized_keys ]
 then
+  tocon "Update developer keys..."
   cp /usr/config/ssh/authorized_keys /storage/.ssh
 fi
 
@@ -92,81 +61,40 @@ rsync --ignore-existing /usr/config/rsync-rules.conf /storage/.config/
 rsync --ignore-existing /usr/config/rsync.conf /storage/.config/
 
 ### Sync locale data
+tocon "Re-sync locale data..."
 rsync -a --delete /usr/config/locale/* /storage/.config/locale/ >>/var/log/configure.log 2>&1
 rm -rf /storage/.config/emulationstation/locale >>/var/log/configure.log 2>&1 ||:
 ln -sf /usr/share/locale /storage/.config/emulationstation/locale >>/var/log/configure.log 2>&1 ||:
 
+### Fix Japanese language bug
+if [ ! -e "/storage/.config/ppsspp/assets/NotoSansJP-Regular.ttf" ]
+then
+  cd /storage/.config/ppsspp/assets
+  cp /usr/config/ppsspp/assets/NotoSansJP-Regular.ttf .
+  ln -s NotoSansJP-Regular.ttf Roboto-Condensed.ttf
+  cd -
+fi
+
 ### Add items below this line that are safe to remove after a period of time.
 ################################################################################
 
-### Fix docker storage path (dev build issue only)
-if [ -e "/usr/bin/docker" ] && \
-   [ ! -d "/storage/.config/docker" ]
-then
-   cp -rf /usr/config/docker /storage/.config
+## 20240312 clean config files on specific rk3326 devices
+model=$(cat /sys/firmware/devicetree/base/model)
+clean_list="ODROID-GO Advance Black Edition Powkiddy RGB10 Game Console R36S ODROID-GO Super"
+if echo "${clean_list}" | grep "$model"; then
+  rm -rf /storage/.config/mupen64plus
+  rm -rf /storage/.config/drastic
+  rm -f /storage/.config/ppsspp/PSP/SYSTEM/controls.ini
+  rm -f /storage/.config/mednafen/mednafen.cfg
+fi
+if [ "${model}" = "Powkiddy RGB10" ]; then
+  rm -f /storage/joypads/odroidgo2_v11_joypad.cfg
 fi
 
-### Ensure panel properties exist.
-for DPROP in brightness contrast saturation hue
-do
-  DBRI=$(get_setting display.${DPROP})
-  if [ -z "${DBRI}" ]
-  then
-    set_setting display.${DPROP} 50
-  fi
-done
+### 20240319 - Fix MelonDS and Drastic Configs
+rsync -ah --update /usr/config/melonDS/* /storage/.config/melondDS 2>/dev/null
+rsync -ah --update /usr/config/drastic/* /storage/.config/drastic 2>/dev/null
 
-### Update JSListen
-for JSL in jslisten_hotkeys jslisten_profile
-do
-  cp -f /usr/config/${JSL} /storage/.config
-done
-
-### Add properties for enhanced power savings control.
-AUDIOPOWERSAVE=$(get_setting system.power.audio)
-if [ -z "${AUDIOPOWERSAVE}" ]
-then
-  set_setting system.power.audio 1
-fi
-
-CPUPOWERSAVE=$(get_setting system.power.cpu)
-if [ -z "${CPUPOWERSAVE}" ]
-then
-  set_setting system.power.cpu 1
-fi
-
-PCIEPOWERSAVE=$(get_setting system.power.pcie)
-if [ -z "${PCIEPOWERSAVE}" ]
-then
-  set_setting system.power.pcie 1
-fi
-
-RTPM=$(get_setting system.power.rtpm)
-if [ -z "${RTPM}" ]
-then
-  set_setting system.power.rtpm 0
-fi
-
-WAKEEVENTS=$(get_setting system.power.wakeevents)
-if [ -z "${WAKEEVENTS}" ]
-then
-  set_setting system.power.wakeevents 1
-fi
-
-WIFIPOWERSAVE=$(get_setting system.power.wifi)
-if [ -z "${WIFIPOWERSAVE}" ]
-then
-  set_setting system.power.wifi 0
-fi
-
-AUDIBLEALERT=$(get_setting system.battery.warning)
-if [ -z "${AUDIBLEALERT}" ]
-then
-  set_setting system.battery.warning 1
-fi
-
-### Revert the recent ES PowerSavingMode change.
-sed -i 's#<string name="PowerSaverMode".*$#<string name="PowerSaverMode" value="default"/>#g' /storage/.config/emulationstation/es_settings.cfg
-
-### Remove properties containing "auto" from the system config.
-sed -i "/^.*=auto/d" /storage/.config/system/configs/system.cfg
+### 20240207 - Update Vita launchers and data.
+rsync -ah --update /usr/config/vita3k/* /storage/.config/vita3k 2>/dev/null
+rm -f "/storage/.config/vita3k/launcher/Start Vita3K.sh"

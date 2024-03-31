@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="sqlite"
-PKG_VERSION="3.41.2"
+PKG_VERSION="3.42.0"
 PKG_VERSION_SQLITE="${PKG_VERSION/./}00"
 PKG_LICENSE="PublicDomain"
 PKG_SITE="https://www.sqlite.org/"
@@ -23,9 +23,6 @@ PKG_CONFIGURE_OPTS_TARGET="--disable-static \
                            --with-gnu-ld"
 
 pre_configure_target() {
-# sqlite fails to compile with fast-math link time optimization.
-  CFLAGS=$(echo ${CFLAGS} | sed -e "s|-Ofast|-O3|g")
-  CFLAGS=$(echo ${CFLAGS} | sed -e "s|-ffast-math||g")
 
 # This option adds additional logic to the ANALYZE command and to the query planner
 # that can help SQLite to chose a better query plan under certain situations. The

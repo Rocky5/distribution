@@ -2,8 +2,8 @@
 # Copyright (C) 2021-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="foot"
-PKG_VERSION="1.12.1"
-PKG_SHA256="14e307ac89454b682bb9f1bc644043779f4462df656034fcc4c1e72b18fbffdd"
+PKG_VERSION="1.16.2"
+PKG_SHA256="0e02af376e5f4a96eeb90470b7ad2e79a1d660db2a7d1aa772be43c7db00e475"
 PKG_LICENSE="MIT"
 PKG_SITE="https://codeberg.org/dnkl/foot/"
 PKG_URL="https://codeberg.org/dnkl/foot/archive/${PKG_VERSION}.tar.gz"
@@ -16,6 +16,10 @@ PKG_MESON_OPTS_TARGET="-Ddocs=disabled \
                        -Dgrapheme-clustering=auto \
                        -Dterminfo=disabled \
                        -Ddefault-terminfo=xterm"
+
+pre_configure_target() {
+  export TARGET_CFLAGS=$(echo "${TARGET_CFLAGS} -Wno-error=switch")
+}
 
 post_makeinstall_target(){
   # clean up

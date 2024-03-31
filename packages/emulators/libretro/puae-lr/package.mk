@@ -2,7 +2,7 @@
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
 #      Copyright (C) 2020      351ELEC team (https://github.com/fewtarius/351ELEC)
-#      Copyright (C) 2023-present Fewtarius
+#      Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 ################################################################################
 
 PKG_NAME="puae-lr"
-PKG_VERSION="8800b86264ea919eea337202077047e5220a76cb"
+PKG_VERSION="5f683ae67b998fcadd69fa8f65f2440fa8ef135f"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"

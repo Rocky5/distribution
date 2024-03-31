@@ -1,13 +1,13 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2023-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="box86"
-PKG_VERSION="ecf7bfd8480fce4d54fd6308711c1d2c06e2088f"
+PKG_VERSION="266392e315bb5e7827928512c930e04448f137d1"
 PKG_ARCH="arm aarch64"
 PKG_LICENSE="MIT"
 PKG_SITE="https://github.com/ptitSeb/box86"
 PKG_URL="${PKG_SITE}.git"
-PKG_DEPENDS_TARGET="toolchain ncurses SDL_sound"
+PKG_DEPENDS_TARGET="toolchain ncurses SDL_sound wine"
 PKG_LONGDESC="Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, like ARM."
 PKG_TOOLCHAIN="cmake"
 
@@ -15,13 +15,29 @@ if [ "${OPENGL}" = "no" ]; then
   PKG_DEPENDS_TARGET+=" gl4es"
 fi
 
-PKG_CMAKE_OPTS_TARGET+=" -DCMAKE_BUILD_TYPE=Release"
+PKG_CMAKE_OPTS_TARGET+=" 	-DCMAKE_BUILD_TYPE=Release \
+				-DARM_DYNAREC=On"
 
 case ${TARGET_ARCH} in
   aarch64)
     make_target() {
       true
     }
+  ;;
+esac
+
+case ${DEVICE} in
+  RK3588)
+    PKG_CMAKE_OPTS_TARGET+=" -DRK3588=On"
+  ;;
+  RK3399)
+    PKG_CMAKE_OPTS_TARGET+=" -DRK3399=On"
+  ;;
+  RK3326)
+    PKG_CMAKE_OPTS_TARGET+=" -DGOA_CLONE=On"
+  ;;
+  S922X)
+    PKG_CMAKE_OPTS_TARGET+=" -DODROIDN2=On"
   ;;
 esac
 

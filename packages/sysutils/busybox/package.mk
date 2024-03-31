@@ -4,13 +4,13 @@
 # Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 PKG_NAME="busybox"
-PKG_VERSION="1.36.0"
+PKG_VERSION="1.36.1"
 PKG_LICENSE="GPL"
 PKG_SITE="http://www.busybox.net"
 PKG_URL="http://busybox.net/downloads/${PKG_NAME}-${PKG_VERSION}.tar.bz2"
 PKG_DEPENDS_HOST="gcc:host"
 PKG_DEPENDS_TARGET="toolchain busybox:host hdparm hd-idle dosfstools e2fsprogs zip unzip usbutils parted procps-ng gptfdisk libtirpc"
-PKG_DEPENDS_INIT="toolchain libtirpc"
+PKG_DEPENDS_INIT="toolchain libc:init glibc:init libtirpc"
 PKG_LONGDESC="BusyBox combines tiny versions of many common UNIX utilities into a single small executable."
 # busybox fails to build with GOLD support enabled with binutils-2.25
 PKG_BUILD_FLAGS="-parallel -gold"
@@ -88,10 +88,7 @@ configure_target() {
       sed -i -e "s|^CONFIG_FEATURE_MOUNT_CIFS=.*$|# CONFIG_FEATURE_MOUNT_CIFS is not set|" .config
     fi
 
-    # optimize for size
-    CFLAGS=`echo ${CFLAGS} | sed -e "s|-Ofast|-Os|"`
-    CFLAGS=`echo ${CFLAGS} | sed -e "s|-O.|-Os|"`
-    CFLAGS="${CFLAGS} -I${SYSROOT_PREFIX}/usr/include/tirpc"
+    #CFLAGS="${CFLAGS} -I${SYSROOT_PREFIX}/usr/include/tirpc"
 
     LDFLAGS="${LDFLAGS} -fwhole-program"
 
@@ -106,10 +103,7 @@ configure_init() {
   # set install dir
   sed -i -e "s|^CONFIG_PREFIX=.*$|CONFIG_PREFIX=\"${INSTALL}/usr\"|" .config
 
-  # optimize for size
-  CFLAGS=`echo ${CFLAGS} | sed -e "s|-Ofast|-Os|"`
-  CFLAGS=`echo ${CFLAGS} | sed -e "s|-O.|-Os|"`
-  CFLAGS="${CFLAGS} -I${SYSROOT_PREFIX}/usr/include/tirpc"
+  #CFLAGS="${CFLAGS} -I${SYSROOT_PREFIX}/usr/include/tirpc"
 
   LDFLAGS="${LDFLAGS} -fwhole-program"
 
@@ -124,21 +118,20 @@ makeinstall_host() {
 makeinstall_target() {
   mkdir -p ${INSTALL}/usr/bin
     [ ${TARGET_ARCH} = x86_64 ] && cp ${PKG_DIR}/scripts/getedid ${INSTALL}/usr/bin
-    cp ${PKG_DIR}/scripts/dtfile ${INSTALL}/usr/bin
-    cp ${PKG_DIR}/scripts/dtname ${INSTALL}/usr/bin
+    cp ${PKG_DIR}/scripts/dthelper ${INSTALL}/usr/bin
+      ln -sf dthelper ${INSTALL}/usr/bin/dtfile
+      ln -sf dthelper ${INSTALL}/usr/bin/dtflag
+      ln -sf dthelper ${INSTALL}/usr/bin/dtname
+      ln -sf dthelper ${INSTALL}/usr/bin/dtsoc
     cp ${PKG_DIR}/scripts/lsb_release ${INSTALL}/usr/bin/
     cp ${PKG_DIR}/scripts/pastebinit ${INSTALL}/usr/bin/
     ln -sf pastebinit ${INSTALL}/usr/bin/paste
 
-  mkdir -p ${INSTALL}/usr/lib/coreelec
-    cp ${PKG_DIR}/scripts/functions ${INSTALL}/usr/lib/coreelec
-    cp ${PKG_DIR}/scripts/fs-resize ${INSTALL}/usr/lib/coreelec
+  mkdir -p ${INSTALL}/usr/lib/jelos/
+    cp ${PKG_DIR}/scripts/functions ${INSTALL}/usr/lib/jelos/
+    cp ${PKG_DIR}/scripts/fs-resize ${INSTALL}/usr/lib/jelos/
     sed -e "s/@DISTRONAME@/${DISTRONAME}/g" \
-        -i ${INSTALL}/usr/lib/coreelec/fs-resize
-
-    if listcontains "${FIRMWARE}" "rpi-eeprom"; then
-      cp ${PKG_DIR}/scripts/rpi-flash-firmware ${INSTALL}/usr/lib/libreelec
-    fi
+        -i ${INSTALL}/usr/lib/jelos/fs-resize
 
   mkdir -p ${INSTALL}/etc
     cp ${PKG_DIR}/config/profile ${INSTALL}/etc
@@ -178,10 +171,10 @@ post_install() {
   fi
   ROOT_PWD="`${TOOLCHAIN}/bin/cryptpw -m sha512 ${ROOT_PASSWORD}`"
 
-  echo "chmod 4755 ${INSTALL}/usr/bin/busybox" >> $FAKEROOT_SCRIPT
-  echo "chmod 000 ${INSTALL}/usr/cache/shadow" >> $FAKEROOT_SCRIPT
+  echo "chmod 4755 ${INSTALL}/usr/bin/busybox" >> ${FAKEROOT_SCRIPT}
+  echo "chmod 000 ${INSTALL}/usr/cache/shadow" >> ${FAKEROOT_SCRIPT}
 
-  add_user root "${ROOT}_PWD" 0 0 "Root User" "/storage" "/bin/sh"
+  add_user root "${ROOT_PWD}" 0 0 "Root User" "/storage" "/bin/sh"
   add_group root 0
   add_group users 100
 
@@ -192,8 +185,6 @@ post_install() {
   enable_service show-version.service
   enable_service var.mount
   enable_service proc-sys-fs-binfmt_misc.mount
-
-  listcontains "${FIRMWARE}" "rpi-eeprom" && enable_service rpi-flash-firmware.service
 
   # cron support
   if [ "$CRON_SUPPORT" = "yes" ] ; then

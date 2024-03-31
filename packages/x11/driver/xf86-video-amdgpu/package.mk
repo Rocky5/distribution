@@ -3,13 +3,13 @@
 # Copyright (C) 2019-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="xf86-video-amdgpu"
-PKG_VERSION="22.0.0"
-PKG_SHA256="9d23fb602915dc3ccde92aa4d1e9485e7e54eaae2f41f485e55eb20761778266"
+PKG_VERSION="23.0.0"
+PKG_SHA256="4f04f0ea66f3ced0dcc58f617409860163a19c4e8c285cfb5285f36ba09cc061"
 PKG_ARCH="x86_64"
 PKG_LICENSE="OSS"
 PKG_SITE="https://www.x.org/wiki/RadeonFeature/"
 PKG_URL="https://www.x.org/archive/individual/driver/${PKG_NAME}-${PKG_VERSION}.tar.xz"
-PKG_DEPENDS_TARGET="toolchain libdrm xorg-server"
+PKG_DEPENDS_TARGET="toolchain libdrm xwayland"
 PKG_LONGDESC="Xorg driver for AMD Radeon GPUs using the amdgpu kernel driver."
 PKG_TOOLCHAIN="autotools"
 

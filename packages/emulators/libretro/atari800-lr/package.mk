@@ -1,7 +1,7 @@
 ################################################################################
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
-#      Copyright (C) 2009-2012 Fewtarius
+#      Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 ################################################################################
 
 PKG_NAME="atari800-lr"
-PKG_VERSION="86be15db82e8c4275a7854d8b61839e87f06ef30"
+PKG_VERSION="410d7bf0c215f3444793a9cec51c129e7b67c400"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"

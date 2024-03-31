@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2019-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="wireguard-tools"
 PKG_VERSION="v1.0.20210914"
@@ -27,4 +27,5 @@ makeinstall_target() {
     cp ${PKG_DIR}/scripts/wg-genconfig ${INSTALL}/usr/bin
     cp ${PKG_BUILD}/src/wg ${INSTALL}/usr/bin
     cp ${PKG_BUILD}/src/wg-quick/linux.bash ${INSTALL}/usr/bin/wg-quick
+    chmod 755 ${INSTALL}/usr/bin/*
 }

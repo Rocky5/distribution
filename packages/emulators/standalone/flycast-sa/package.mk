@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2021-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2022-present BrooksyTech (https://github.com/brooksytech)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="flycast-sa"
-PKG_VERSION="3bf817aea1af9c2feb5382176b6b016d1569e8e9"
+PKG_VERSION="40cdef6c1c9bd73bf3a55d412e30c25bbcf2b59c"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/flyinghead/flycast"
 PKG_URL="${PKG_SITE}.git"
@@ -13,18 +12,13 @@ PKG_LONGDESC="Flycast is a multiplatform Sega Dreamcast, Naomi and Atomiswave em
 PKG_TOOLCHAIN="cmake"
 PKG_PATCH_DIRS+="${DEVICE}"
 
-if [ ! "${OPENGL}" = "no" ]; then
+if [[ "${OPENGL_SUPPORT}" = "yes" ]] && [[ ! "${DEVICE}" = "S922X" ]]; then
   PKG_DEPENDS_TARGET+=" ${OPENGL} glu libglvnd"
-  PKG_CMAKE_OPTS_TARGET+="  USE_OPENGL=ON"
-else
-  PKG_CMAKE_OPTS_TARGET+="  USE_OPENGL=OFF"
-fi
+  PKG_CMAKE_OPTS_TARGET+="  -USE_OPENGL=ON -DUSE_GLES=OFF"
 
-if [ "${OPENGLES_SUPPORT}" = yes ]; then
+elif [ "${OPENGLES_SUPPORT}" = yes ]; then
   PKG_DEPENDS_TARGET+=" ${OPENGLES}"
   PKG_CMAKE_OPTS_TARGET+=" -DUSE_GLES=ON"
-else
-  PKG_CMAKE_OPTS_TARGET+=" -DUSE_GLES=OFF"
 fi
 
 if [ "${VULKAN_SUPPORT}" = "yes" ]
@@ -36,8 +30,9 @@ else
 fi
 
 pre_configure_target() {
-export CXXFLAGS="${CXXFLAGS} -Wno-error=array-bounds"
-PKG_CMAKE_OPTS_TARGET+=" -DUSE_OPENMP=ON"
+  export CXXFLAGS="${CXXFLAGS} -Wno-error=array-bounds"
+  PKG_CMAKE_OPTS_TARGET+=" -DUSE_OPENMP=ON"
+  sed -i 's/\-O[23]/-Ofast/' ${PKG_BUILD}/CMakeLists.txt
 }
 
 makeinstall_target() {

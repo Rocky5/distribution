@@ -4,23 +4,53 @@
 
 PKG_NAME="linux"
 PKG_LICENSE="GPL"
-PKG_VERSION="6.4.3"
-PKG_URL="https://www.kernel.org/pub/linux/kernel/v6.x/${PKG_NAME}-${PKG_VERSION}.tar.xz"
 PKG_SITE="http://www.kernel.org"
-PKG_DEPENDS_HOST="ccache:host rsync:host openssl:host"
-PKG_DEPENDS_TARGET="toolchain linux:host kmod:host cpio:host xz:host keyutils ncurses openssl:host wireless-regdb initramfs ${KERNEL_EXTRA_DEPENDS_TARGET}"
+PKG_DEPENDS_HOST="ccache:host rdfind:host rsync:host openssl:host"
+PKG_DEPENDS_TARGET="toolchain rdfind:host linux:host kmod:host cpio:host xz:host keyutils ncurses openssl:host wireless-regdb ${KERNEL_EXTRA_DEPENDS_TARGET}"
 PKG_NEED_UNPACK="${LINUX_DEPENDS} $(get_pkg_directory initramfs) $(get_pkg_variable initramfs PKG_NEED_UNPACK)"
 PKG_LONGDESC="This package contains a precompiled kernel image and the modules."
 PKG_IS_KERNEL_PKG="yes"
 PKG_STAMP="${KERNEL_TARGET} ${KERNEL_MAKE_EXTRACMD}"
 
-PKG_PATCH_DIRS+="${LINUX} ${DEVICE} default"
+PKG_PATCH_DIRS="${LINUX} ${DEVICE} default"
+
+case ${DEVICE} in
+  RK3588*)
+    PKG_VERSION="494c0a303537c55971421b5552d98eb55e652cf3"
+    PKG_URL="https://github.com/armbian/linux-rockchip/archive/${PKG_VERSION}.tar.gz"
+    PKG_GIT_CLONE_BRANCH="rk-5.10-rkr6"
+  ;;
+  RK3566-BSP)
+    PKG_URL="https://github.com/JustEnoughLinuxOS/rk356x-kernel.git"
+    PKG_VERSION="c741d56477939654bb4056be240f93d1ad1ae91e"
+    GET_HANDLER_SUPPORT="git"
+    PKG_GIT_CLONE_BRANCH="main"
+  ;;
+  RK3566-BSP-X55)
+    PKG_URL="https://github.com/JustEnoughLinuxOS/rk3566-x55-kernel.git"
+    PKG_VERSION="9e8f3703fe49d5d12bbb951e233248f5f3eb9efd"
+    GET_HANDLER_SUPPORT="git"
+    PKG_GIT_CLONE_BRANCH="main"
+  ;;
+  RK356*)
+    PKG_VERSION="6.8-rc6"
+    PKG_URL="https://git.kernel.org/torvalds/t/${PKG_NAME}-${PKG_VERSION}.tar.gz"
+  ;;
+  S922X|RK3399)
+    PKG_VERSION="6.8.1"
+    PKG_URL="https://www.kernel.org/pub/linux/kernel/v6.x/${PKG_NAME}-${PKG_VERSION}.tar.xz"
+  ;;
+  *)
+    PKG_VERSION="6.7.9"
+    PKG_URL="https://www.kernel.org/pub/linux/kernel/v6.x/${PKG_NAME}-${PKG_VERSION}.tar.xz"
+  ;;
+esac
 
 PKG_KERNEL_CFG_FILE=$(kernel_config_path) || die
 
 if [ -n "${KERNEL_TOOLCHAIN}" ]; then
-  PKG_DEPENDS_HOST="${PKG_DEPENDS_HOST} gcc-${KERNEL_TOOLCHAIN}:host"
-  PKG_DEPENDS_TARGET="${PKG_DEPENDS_TARGET} gcc-${KERNEL_TOOLCHAIN}:host"
+  PKG_DEPENDS_HOST+=" gcc-${KERNEL_TOOLCHAIN}:host"
+  PKG_DEPENDS_TARGET+=" gcc-${KERNEL_TOOLCHAIN}:host"
   HEADERS_ARCH=${TARGET_ARCH}
 fi
 
@@ -30,10 +60,9 @@ if [ "${PKG_BUILD_PERF}" != "no" ] && grep -q ^CONFIG_PERF_EVENTS= ${PKG_KERNEL_
 fi
 
 if [[ "${TARGET_ARCH}" =~ i*86|x86_64 ]]; then
-  PKG_DEPENDS_TARGET+=" elfutils:host pciutils"
-  PKG_DEPENDS_UNPACK+=" intel-ucode kernel-firmware"
+  PKG_DEPENDS_TARGET+=" elfutils:host pciutils intel-ucode kernel-firmware"
 elif [ "${TARGET_ARCH}" = "arm" -a "${DEVICE}" = "iMX6" ]; then
-  PKG_DEPENDS_UNPACK+=" firmware-imx"
+  PKG_DEPENDS_TARGET+=" firmware-imx"
 fi
 
 if [[ "${KERNEL_TARGET}" = uImage* ]]; then
@@ -102,9 +131,12 @@ makeinstall_host() {
 }
 
 pre_make_target() {
-  ( cd ${ROOT}
-    rm -rf ${BUILD}/initramfs
+ ( cd ${ROOT}
     rm -f ${STAMPS_INSTALL}/initramfs/install_target ${STAMPS_INSTALL}/*/install_init
+    for INIT_PACKAGE in $(find ${PKG_BUILD}/../image/.stamps -name "*_init" | sed 's#^.*stamps/##g; s#/.*init$##g')
+    do
+      ${SCRIPTS}/install ${INIT_PACKAGE}:init
+    done
     ${SCRIPTS}/install initramfs
   )
   pkg_lock_status "ACTIVE" "linux:target" "build"
@@ -232,6 +264,7 @@ make_target() {
       NO_GTK2=1 \
       NO_LIBNUMA=1 \
       NO_LIBAUDIT=1 \
+      NO_LIBTRACEEVENT=1 \
       NO_LZMA=1 \
       NO_SDT=1 \
       CROSS_COMPILE="${TARGET_PREFIX}" \
@@ -281,37 +314,22 @@ makeinstall_target() {
   rm -f ${INSTALL}/$(get_kernel_overlay_dir)/lib/modules/*/source
 
   if [ "${BOOTLOADER}" = "u-boot" ]; then
-    mkdir -p ${INSTALL}/usr/share/bootloader/device_trees
-    if [ -d arch/${TARGET_KERNEL_ARCH}/boot/dts/amlogic ]; then
-      cp arch/${TARGET_KERNEL_ARCH}/boot/*dtb.img ${INSTALL}/usr/share/bootloader/ 2>/dev/null || :
-      [ "${DEVICE}" = "Amlogic-ng" ] && cp arch/${TARGET_KERNEL_ARCH}/boot/dts/amlogic/*.dtb ${INSTALL}/usr/share/bootloader/device_trees 2>/dev/null || :
-    fi
-  elif [ "${BOOTLOADER}" = "bcm2835-bootloader" ]; then
-    # RPi firmware will decompress gzipped kernels prior to booting
-    if [ "${TARGET_KERNEL_ARCH}" = "arm64" ]; then
-      pigz --best --force ${INSTALL}/.image/${KERNEL_TARGET}
-      mv ${INSTALL}/.image/${KERNEL_TARGET}.gz ${INSTALL}/.image/${KERNEL_TARGET}
-    fi
-
-    mkdir -p ${INSTALL}/usr/share/bootloader/overlays
-
-    # install platform dtbs, but remove upstream kernel dtbs (i.e. without downstream
-    # drivers and decent USB support) as these are not required by LibreELEC
+    mkdir -p ${INSTALL}/usr/share/bootloader
     for dtb in arch/${TARGET_KERNEL_ARCH}/boot/dts/*.dtb arch/${TARGET_KERNEL_ARCH}/boot/dts/*/*.dtb; do
       if [ -f ${dtb} ]; then
         cp -v ${dtb} ${INSTALL}/usr/share/bootloader
       fi
     done
-    rm -f ${INSTALL}/usr/share/bootloader/bcm283*.dtb
-    # duplicated in overlays below
-    safe_remove ${INSTALL}/usr/share/bootloader/overlay_map.dtb
 
-    # install overlay dtbs
-    for dtb in arch/arm/boot/dts/overlays/*.dtb \
-               arch/arm/boot/dts/overlays/*.dtbo; do
-      cp ${dtb} ${INSTALL}/usr/share/bootloader/overlays 2>/dev/null || :
-    done
-    cp -p arch/${TARGET_KERNEL_ARCH}/boot/dts/overlays/README ${INSTALL}/usr/share/bootloader/overlays
+    if [ "${PROJECT}" = "Rockchip" ]; then
+      . ${PROJECT_DIR}/${PROJECT}/devices/${DEVICE}/options
+      if [ "${TRUST_LABEL}" = "resource" ]; then
+        ARCH=arm64 scripts/mkimg --dtb ${DEVICE_DTB[0]}.dtb
+        ARCH=arm64 scripts/mkmultidtb.py ${PKG_SOC}
+        cp -v resource.img ${INSTALL}/usr/share/bootloader
+        ARCH=${TARGET_ARCH}
+      fi
+    fi
   fi
   makeinstall_host
 }

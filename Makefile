@@ -1,4 +1,5 @@
 BUILD_DIRS=build.*
+-include $(HOME)/.JELOS/options
 
 all: world
 
@@ -11,9 +12,6 @@ release:
 image:
 	./scripts/image mkimage
 
-noobs:
-	./scripts/image noobs
-
 clean:
 	rm -rf $(BUILD_DIRS)
 
@@ -23,13 +21,20 @@ distclean:
 src-pkg:
 	tar cvJf sources.tar.xz sources .stamps
 
+docs:
+	./tools/foreach './scripts/clean emulators && ./scripts/build emulators'
 
-world: AMD64 RK3588 S922X RK3566 RK3566-X55 RK3326 RK3399
+world: AMD64 RK3566-BSP RK3566-BSP-X55 RK3588 S922X RK3326 RK3399
 
 AMD64:
 	unset DEVICE_ROOT
 	PROJECT=PC DEVICE=AMD64 ARCH=i686 ./scripts/build_distro
 	PROJECT=PC DEVICE=AMD64 ARCH=x86_64 ./scripts/build_distro
+
+INTEL64:
+	unset DEVICE_ROOT
+	PROJECT=PC DEVICE=INTEL64 ARCH=i686 ./scripts/build_distro
+	PROJECT=PC DEVICE=INTEL64 ARCH=x86_64 ./scripts/build_distro
 
 RK3588:
 	unset DEVICE_ROOT
@@ -49,6 +54,20 @@ RK3566-X55:
 	DEVICE_ROOT=RK3566 PROJECT=Rockchip DEVICE=RK3566-X55 ARCH=arm ./scripts/build_distro
 	DEVICE_ROOT=RK3566 PROJECT=Rockchip DEVICE=RK3566-X55 ARCH=aarch64 ./scripts/build_distro
 
+RK3566-BSP:
+	unset DEVICE_ROOT
+	DEVICE_ROOT=RK3566-BSP PROJECT=Rockchip DEVICE=RK3566-BSP ARCH=arm ./scripts/build_distro
+	DEVICE_ROOT=RK3566-BSP PROJECT=Rockchip DEVICE=RK3566-BSP ARCH=aarch64 ./scripts/build_distro
+
+RK3566-BSP-X55:
+	DEVICE_ROOT=RK3566-BSP PROJECT=Rockchip DEVICE=RK3566-BSP-X55 ARCH=arm ./scripts/build_distro
+	DEVICE_ROOT=RK3566-BSP PROJECT=Rockchip DEVICE=RK3566-BSP-X55 ARCH=aarch64 ./scripts/build_distro
+
+RK-ARMV8-A:
+	unset DEVICE_ROOT
+	PROJECT=Rockchip DEVICE=RK-ARMV8-A ARCH=arm ./scripts/build_distro
+	PROJECT=Rockchip DEVICE=RK-ARMV8-A ARCH=aarch64 ./scripts/build_distro
+
 RK3326:
 	unset DEVICE_ROOT
 	PROJECT=Rockchip DEVICE=RK3326 ARCH=arm ./scripts/build_distro
@@ -59,6 +78,12 @@ RK3399:
 	PROJECT=Rockchip DEVICE=RK3399 ARCH=arm ./scripts/build_distro
 	PROJECT=Rockchip DEVICE=RK3399 ARCH=aarch64 ./scripts/build_distro
 
+RK33XX:
+	unset DEVICE_ROOT
+	unset BASE_DEVICE
+	$(MAKE) RK-ARMV8-A
+	BASE_DEVICE=RK-ARMV8-A $(MAKE) RK3326
+	BASE_DEVICE=RK-ARMV8-A $(MAKE) RK3399
 
 update:
 	PROJECT=PC DEVICE=AMD64 ARCH=x86_64 ./scripts/update_packages
@@ -99,7 +124,8 @@ docker-%: PWD := $(shell pwd)
 docker-%: DOCKER_CMD:= $(shell if which docker 2>/dev/null 1>/dev/null; then echo "docker"; elif which podman 2>/dev/null 1>/dev/null; then echo "podman"; fi)
 
 # Podman requires some extra args (`--userns=keep-id` and `--security-opt=label=disable`).  Set those args if using podman
-docker-%: PODMAN_ARGS:= $(shell if ! which docker 2>/dev/null 1>/dev/null && which podman 2> /dev/null 1> /dev/null; then echo "--userns=keep-id --security-opt=label=disable -v /proc/mounts:/etc/mtab"; fi)
+#   Make sure that docker isn't just an alias for podman
+docker-%: PODMAN_ARGS:= $(shell if echo "$$(docker --version 2>/dev/null || podman --version 2>/dev/null )" | grep podman 1>/dev/null ; then echo "--userns=keep-id --security-opt=label=disable -v /proc/mounts:/etc/mtab"; fi)
 
 # Launch docker as interactive if this is an interactive shell (allows ctrl-c for manual and running non-interactive - aka: build server)
 docker-%: INTERACTIVE=$(shell [ -t 0 ] && echo "-it")

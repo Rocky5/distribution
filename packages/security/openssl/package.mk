@@ -3,7 +3,7 @@
 # Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="openssl"
-PKG_VERSION="3.0.9"
+PKG_VERSION="3.0.12"
 PKG_LICENSE="Apache-2.0"
 PKG_SITE="https://www.openssl.org"
 PKG_URL="https://www.openssl.org/source/${PKG_NAME}-${PKG_VERSION}.tar.gz"
@@ -15,15 +15,10 @@ PKG_BUILD_FLAGS="+local-cc"
 PKG_CONFIGURE_OPTS_SHARED="--libdir=lib \
                            shared \
                            threads \
-                           no-ec2m \
                            no-md2 \
                            no-rc5 \
                            no-rfc3779 \
-                           no-sctp \
-                           no-ssl-trace \
-                           no-ssl3 \
                            no-unit-test \
-                           no-weak-ssl-ciphers \
                            no-zlib \
                            no-zlib-dynamic \
                            no-static-engine"
@@ -95,16 +90,16 @@ post_makeinstall_target() {
   # give user the chance to include their own CA
   mkdir -p ${INSTALL}/usr/bin
     cp ${PKG_DIR}/scripts/openssl-config ${INSTALL}/usr/bin
-    ln -sf /run/libreelec/cacert.pem ${INSTALL}/etc/ssl/cacert.pem
-    ln -sf /run/libreelec/cacert.pem ${INSTALL}/etc/ssl/cert.pem
+    ln -sf /run/jelos/cacert.pem ${INSTALL}/etc/ssl/cacert.pem
+    ln -sf /run/jelos/cacert.pem ${INSTALL}/etc/ssl/cert.pem
 
   # backwards comatibility
   mkdir -p ${INSTALL}/etc/pki/tls
-    ln -sf /run/libreelec/cacert.pem ${INSTALL}/etc/pki/tls/cacert.pem
+    ln -sf /run/jelos/cacert.pem ${INSTALL}/etc/pki/tls/cacert.pem
   mkdir -p ${INSTALL}/etc/pki/tls/certs
-    ln -sf /run/libreelec/cacert.pem ${INSTALL}/etc/pki/tls/certs/ca-bundle.crt
+    ln -sf /run/jelos/cacert.pem ${INSTALL}/etc/pki/tls/certs/ca-bundle.crt
   mkdir -p ${INSTALL}/usr/lib/ssl
-    ln -sf /run/libreelec/cacert.pem ${INSTALL}/usr/lib/ssl/cert.pem
+    ln -sf /run/jelos/cacert.pem ${INSTALL}/usr/lib/ssl/cert.pem
 }
 
 post_install() {

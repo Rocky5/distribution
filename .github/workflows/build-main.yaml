@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2021-present 351ELEC
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 ### Based on work by @pkegg
 
@@ -51,7 +51,7 @@ jobs:
       - name: Build World
         run: |
             set -e
-            CUSTOM_VERSION="${{ steps.version.outputs.version }}" DOCKER_WORK_DIR="/work" DOCKER_EXTRA_OPTS="-v /buildroot:/buildroot" make docker-world
+            CUSTOM_VERSION="${{ steps.version.outputs.version }}" DOCKER_WORK_DIR="/work" DOCKER_EXTRA_OPTS="-v /buildroot:/buildroot" make docker-world >/tmp/build.log 2>&1
       - name: Create release as draft at first to hide during uploads
         if: github.event.action == 'release-main'
         uses: ncipollo/release-action@v1
@@ -78,7 +78,7 @@ jobs:
             * ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
             ### JELOS Software
-            Copyright 2021-present Fewtarius
+            Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
             Licensed under the Apache License, Version 2.0 (the "License");
             you may not use this file except in compliance with the License.
@@ -100,13 +100,16 @@ jobs:
             ### Installation Package Downloads
             |**Device/Platform**|**Download Package**|**Documentation**|
             |----|----|----|
-            |**Anbernic RG351P/M, ODROID Go Advance, ODROID Go Super**|[JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/RK3326/)|
-            |**Anbernic RG353P/M/V/VS, RG503, and Powkiddy RK2023**|[JELOS-RK3566.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/RK3566/)|
-            |**Anbernic RG552**|[JELOS-RK3399.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3399.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/RK3399/)|
-            |**Ayaneo Handhelds, Atari VCS, and other x86_64 devices**|[JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/AMD64/)|
-            |**Hardkernel ODROID Go Ultra, Powkiddy RGB10 Max 3 Pro**|[JELOS-S922X.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-S922X.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/S922X/)|
-            |**Orange Pi 5, and Indiedroid Nova**|[JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/RK3588/)|
-            |**Powkiddy x55**|[JELOS-RK3566-X55.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566-X55.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/RK3566-X55/)|
+            |**Anbernic RG351P/M, Game Console R33S/R35S/R36S, ODROID Go Advance, ODROID Go Super, Magicx XU10**|[JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/RK3326/)|
+            |**Anbernic RG353P/M/V/VS, RG503, Powkiddy RK2023, RGB10 Max 3, RGB30**|[JELOS-RK3566-BSP.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566-BSP.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/RK3566/)|
+            |**Anbernic RG552**|[JELOS-RK3399.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3399.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/RK3399/)|
+            |**Atari VCS, AOKZOE, Ayaneo, Ayn, GPD, and other x86_64 devices**|[JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/AMD64/)|
+            |**Gameforce Ace**|[JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/RK3588/)|
+            |**Hardkernel ODROID Go Ultra, Powkiddy RGB10 Max 3 Pro**|[JELOS-S922X.aarch64-${{ steps.version.outputs.version }}-Odroid_GOU.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-S922X.aarch64-${{ steps.version.outputs.version }}-Odroid_GOU.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/S922X/)|
+            |**Hardkernel ODROID N2/N2+**|[JELOS-S922X.aarch64-${{ steps.version.outputs.version }}-Odroid_N2.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-S922X.aarch64-${{ steps.version.outputs.version }}-Odroid_N2.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/S922X/)|
+            |**Hardkernel ODROID N2L**|[JELOS-S922X.aarch64-${{ steps.version.outputs.version }}-Odroid_N2L.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-S922X.aarch64-${{ steps.version.outputs.version }}-Odroid_N2L.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/S922X/)|
+            |**Orange Pi 5, and Indiedroid Nova**|[JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/RK3588/)|
+            |**Powkiddy x55**|[JELOS-RK3566-BSP-X55.aarch64-${{ steps.version.outputs.version }}.img.gz](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566-BSP-X55.aarch64-${{ steps.version.outputs.version }}.img.gz)|[documentation](/documentation/PER_DEVICE_DOCUMENTATION/RK3566-X55/)|
 
             ## Upgrading
             * Download and install the update online via the System Settings menu.
@@ -118,27 +121,47 @@ jobs:
             ### Update Package Downloads
             |**Device/Platform**|**Download Package**|
             |----|----|
-            |**Anbernic RG351P/M, ODROID Go Advance, ODROID Go Super**|[JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.tar)|
-            |**Anbernic RG353P/M/V/VS, RG503, and Powkiddy RK2023**|[JELOS-RK3566.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566.aarch64-${{ steps.version.outputs.version }}.tar)|
+            |**Anbernic RG351P/M, Game Console R33S/R35S/R36S, ODROID Go Advance, ODROID Go Super, Magicx XU10**|[JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3326.aarch64-${{ steps.version.outputs.version }}.tar)|
+            |**Anbernic RG353P/M/V/VS, RG503, Powkiddy RK2023, RGB10 Max 3, RGB30**|[JELOS-RK3566-BSP.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566-BSP.aarch64-${{ steps.version.outputs.version }}.tar)|
             |**Anbernic RG552**|[JELOS-RK3399.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3399.aarch64-${{ steps.version.outputs.version }}.tar)|
-            |**Ayaneo Handhelds, Atari VCS, and other x86_64 devices**|[JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.tar)|
-            |**Hardkernel ODROID Go Ultra, Powkiddy RGB10 Max 3 Pro**|[JELOS-S922X.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-S922X.aarch64-${{ steps.version.outputs.version }}.tar)|
+            |****Atari VCS, AOKZOE, Ayaneo, Ayn, GPD, and other x86_64 devices****|[JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-AMD64.x86_64-${{ steps.version.outputs.version }}.tar)|
+            |**Gameforce Ace**|[JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.tar)|
+            |**Hardkernel ODROID Go Ultra, N2/N2+/N2L, Powkiddy RGB10 Max 3 Pro**|[JELOS-S922X.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-S922X.aarch64-${{ steps.version.outputs.version }}.tar)|
             |**Orange Pi 5, and Indiedroid Nova**|[JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3588.aarch64-${{ steps.version.outputs.version }}.tar)|
-            |**Powkiddy x55**|[JELOS-RK3566-X55.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566-X55.aarch64-${{ steps.version.outputs.version }}.tar)|
+            |**Powkiddy x55**|[JELOS-RK3566-BSP-X55.aarch64-${{ steps.version.outputs.version }}.tar](https://github.com/JustEnoughLinuxOS/distribution/releases/download/${{ steps.version.outputs.version }}/JELOS-RK3566-BSP-X55.aarch64-${{ steps.version.outputs.version }}.tar)|
 
             ## Documentation
-            * [Home](https://github.com/JustEnoughLinuxOS/distribution/wiki)
-            * [General Documentation](https://github.com/JustEnoughLinuxOS/distribution/documentation)
-            * [Donating to JELOS](https://github.com/JustEnoughLinuxOS/distribution/wiki/Donating-to-JELOS)
-            * [Frequently asked Questions](https://github.com/JustEnoughLinuxOS/distribution/wiki/Frequently-Asked-Questions)
-            * [HotKeys](https://github.com/JustEnoughLinuxOS/distribution/wiki/Hotkeys)
-            * [Emulators and Game Engines](https://github.com/JustEnoughLinuxOS/distribution/wiki/JELOS-emulators-and-game-engines)
-            * [Moonlight Game Streaming](https://github.com/JustEnoughLinuxOS/distribution/wiki/Moonlight-Game-Streaming)
-            * [Using Cloud Drives](https://github.com/JustEnoughLinuxOS/distribution/wiki/Using-Cloud-Drives)
-            * [Wireguard VPN](https://github.com/JustEnoughLinuxOS/distribution/wiki/WireGuard-VPN)
 
-            ## Contributing
-            * [Developing and Building JELOS](https://github.com/JustEnoughLinuxOS/distribution/blob/dev/BUILDING.md)
+            ### Contribute
+
+            * [Building JELOS](https://jelos.org/contribute/build/)
+            * [Code of Conduct](https://jelos.org/contribute/code-of-conduct/)
+            * [Contributing to JELOS](https://jelos.org/contribute/)
+            * [Modifying JELOS](https://jelos.org/contribute/modify/)
+            * [Adding Hardware Quirks](https://jelos.org/contribute/quirks/)
+            * [Creating Packages](https://jelos.org/contribute/packages/)
+            * [Pull Request Template](/PULL_REQUEST_TEMPLATE.md)
+
+            ### Play
+
+            * [Installing JELOS](https://jelos.org/play/install/)
+            * [Updating JELOS](https://jelos.org/play/update/)
+            * [Controls](https://jelos.org/play/controls/)
+            * [Netplay](https://jelos.org/play/netplay/)
+            * [Configuring Moonlight](https://jelos.org/systems/moonlight/)
+            * [Device Specific Documentation](/documentation/PER_DEVICE_DOCUMENTATION)
+
+            ### Configure
+
+            * [Optimizations](https://jelos.org/configure/optimizations/)
+            * [Shaders](https://jelos.org/configure/shaders/)
+            * [Cloud Sync](https://jelos.org/configure/cloud-sync/)
+            * [VPN](https://jelos.org/configure/vpn/)
+
+            ### Other
+
+            * [Frequently Asked Questions](https://jelos.org/faqs/)
+            * [Donating to JELOS](https://jelos.org/donations/)
 
           artifacts: "release/*"
           prerelease: false

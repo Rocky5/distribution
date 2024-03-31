@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="curl"
-PKG_VERSION="8.0.1"
+PKG_VERSION="8.4.0"
 PKG_LICENSE="MIT"
 PKG_SITE="https://curl.haxx.se"
 PKG_URL="https://curl.haxx.se/download/${PKG_NAME}-${PKG_VERSION}.tar.xz"
@@ -62,7 +62,7 @@ PKG_CONFIGURE_OPTS_TARGET="ac_cv_lib_rtmp_RTMP_Init=yes \
                            --with-ssl \
                            --without-mbedtls \
                            --without-nss \
-                           --with-ca-bundle=/run/libreelec/cacert.pem \
+                           --with-ca-bundle=/run/jelos/cacert.pem \
                            --without-ca-path \
                            --without-libpsl \
                            --without-libssh2 \

@@ -4,7 +4,7 @@
 # Copyright (C) 2023-present NeoTheFox (https://github.com/NeoTheFox)
 
 PKG_NAME="zerotier-one"
-PKG_VERSION="1.10.6"
+PKG_VERSION="1.12.2"
 PKG_SITE="https://www.zerotier.com"
 PKG_URL="https://github.com/zerotier/ZeroTierOne/archive/refs/tags/${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_TARGET="toolchain nlohmann-json"
@@ -30,7 +30,5 @@ makeinstall_target() {
     install -Dm755 ${PKG_DIR}/scripts/zerotier-join.sh ${INSTALL}/usr/sbin/
     mkdir -p ${INSTALL}/usr/lib/systemd/system
     install -Dm644 ${PKG_DIR}/system.d/zerotier-one.service ${INSTALL}/usr/lib/systemd/system/
-    mkdir -p ${INSTALL}/etc/profile.d/
-    install -Dm755 ${PKG_DIR}/profile.d/95-zerotier ${INSTALL}/etc/profile.d/
 }
 

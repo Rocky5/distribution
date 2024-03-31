@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2020-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2020 Fewtarius (https://github.com/fewtarius)
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
 
@@ -16,7 +16,7 @@
 # )
 
 BACKUPFOLDER="/storage/roms/backup"
-BACKUPFILE="${BACKUPFOLDER}/${DISTRO}_BACKUP.zip"
+BACKUPFILE="${BACKUPFOLDER}/${OS_NAME}_BACKUP.zip"
 mkdir -p ${BACKUPFOLDER}
 
 DEFAULT=(
@@ -32,7 +32,7 @@ DEFAULT=(
     /storage/.emulationstation/es_*.cfg
     /storage/.emulationstation/scripts/*
     /storage/.emulationstation/themesettings/*
-    $(find /storage/.emulationstation/themes/* -type d -maxdepth 0 -not -path "*es-theme-art-book-next" -not -path "*es-theme-minielec" -not -path "*es-theme-minimal" -not -path "*system-theme")
+    $(find /storage/.emulationstation/themes/* -type d -maxdepth 0 -not -path "*es-theme-art-book-next" -not -path "*system-theme")
 )
 
 if [ -e "/storage/.config/backuptool.conf" ]
@@ -59,7 +59,7 @@ case "${1}" in
         if [ -f ${BACKUPFILE} ]
         then
             TODAY=`date +%y-%m-%d_%H_%M_%S`
-            ARCHIVEFILENAME="ARCHIVED_${DISTRO}_BACKUP-${TODAY}.zip"
+            ARCHIVEFILENAME="ARCHIVED_${OS_NAME}_BACKUP-${TODAY}.zip"
             mv ${BACKUPFILE} "${BACKUPFOLDER}/${ARCHIVEFILENAME}"
         fi
         [ -f "${BACKUPFILE}" ] && rm "${BACKUPFILE}"

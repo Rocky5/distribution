@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2018-present 5schatten (https://github.com/5schatten)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="SDL2"
-PKG_VERSION="2.26.5"
+PKG_VERSION="2.28.5"
 PKG_LICENSE="GPL"
 PKG_SITE="https://www.libsdl.org/"
 PKG_URL="https://www.libsdl.org/release/SDL2-${PKG_VERSION}.tar.gz"
-PKG_DEPENDS_TARGET="toolchain alsa-lib systemd dbus pulseaudio libdrm"
+PKG_DEPENDS_HOST="toolchain"
+PKG_DEPENDS_TARGET="toolchain alsa-lib systemd dbus pulseaudio libdrm SDL2:host"
 PKG_LONGDESC="Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware."
 PKG_DEPENDS_HOST="toolchain:host distutilscross:host"
-PKG_PATCH_DIRS+="${DEVICE}"
 
 if [ ! "${OPENGL}" = "no" ]; then
   PKG_DEPENDS_TARGET+=" ${OPENGL} glu"
@@ -49,7 +49,7 @@ then
   PKG_DEPENDS_TARGET+=" wayland ${WINDOWMANAGER}"
   PKG_CMAKE_OPTS_TARGET+=" -DSDL_WAYLAND=ON \
                            -DVIDEO_WAYLAND=ON \
-                           -DVIDEO_WAYLAND_QT_TOUCH=OFF \
+                           -DVIDEO_WAYLAND_QT_TOUCH=ON \
                            -DWAYLAND_SHARED=ON \
                            -DVIDEO_X11=OFF \
                            -DSDL_X11=OFF"
@@ -61,21 +61,38 @@ else
                            -DSDL_X11=OFF"
 fi
 
-case ${DEVICE} in
-  RK3566-X55)
+case ${PROJECT} in
+  Rockchip)
     PKG_DEPENDS_TARGET+=" librga"
-    pre_make_host() {
-      sed -i "s| -lrga||g" ${PKG_BUILD}/CMakeLists.txt
-    }
-    pre_make_target() {
-      if ! `grep -rnw "${PKG_BUILD}/CMakeLists.txt" -e '-lrga'`; then
-        sed -i "s|--no-undefined|--no-undefined -lrga|" ${PKG_BUILD}/CMakeLists.txt
-      fi
-    }
+    PKG_PATCH_DIRS_TARGET+="${DEVICE}"
   ;;
 esac
 
 pre_configure_target(){
+
+  if [ -n "${PKG_PATCH_DIRS_TARGET}" ]
+  then
+    ###
+    ### Patching here is necessary to allow SDL2 to be built for
+    ### use by host builds without requiring additional unnecessary
+    ### packages to also be built (and break) during the build.
+    ###
+    ### It may be better served as a hook in scripts/build.
+    ###
+
+    if [ -d "${PKG_DIR}/patches/${PKG_PATCH_DIRS_TARGET}" ]
+    then
+      cd $(get_build_dir SDL2)
+      for PATCH in ${PKG_DIR}/patches/${PKG_PATCH_DIRS_TARGET}/*
+      do
+        patch -p1 <${PATCH}
+      done
+      cd -
+    fi
+
+    ### End
+  fi
+
   export LDFLAGS="${LDFLAGS} -ludev"
   PKG_CMAKE_OPTS_TARGET+="-DSDL_STATIC=OFF \
                          -DLIBC=ON \
@@ -116,6 +133,7 @@ pre_configure_target(){
                          -DCLOCK_GETTIME=OFF \
                          -DRPATH=OFF \
                          -DRENDER_D3D=OFF \
+                         -DPIPEWIRE=ON \
                          -DPULSEAUDIO=ON"
 }
 

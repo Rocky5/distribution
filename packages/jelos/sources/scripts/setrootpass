@@ -1,6 +1,6 @@
 #!/bin/bash
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2021-present Fewtarius (https://github.com/fewtarius)
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
 
@@ -26,7 +26,19 @@ set_setting root.password "${ROOTPASS}"
 
 # Restart syncthing if it was enabled.
 SYNCSTATUS=$(get_setting syncthing.enabled)
-if [ "${SYNCSTATUS}" = "1" ]
+SYNCACTIVE=$(systemctl status syncthing | awk '/active/ {print $2}')
+if [ "${SYNCSTATUS}" = "1" ] &&
+   [ "${SYNCACTIVE}" = "active" ]
 then
   systemctl restart syncthing >/dev/null 2>&1
 fi
+
+# Restart simple-http-server if it is enabled
+SIMPLESTATUS=$(get_setting simplehttp.enabled)
+SIMPLEACTIVE=$(systemctl status simple-http-server | awk '/active/ {print $2}')
+if [ "${SIMPLESTATUS}" = "1" ] &&
+   [ "${SIMPLEACTIVE}" = "active" ]
+then
+  systemctl restart simple-http-server >/dev/null 2>&1
+fi
+

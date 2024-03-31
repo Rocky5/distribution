@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2019-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="vlc"
-PKG_VERSION="3.0.18"
+PKG_VERSION="3.0.20"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="http://www.videolan.org"
@@ -29,14 +29,14 @@ pre_configure_target() {
             --enable-png \
             --enable-jpeg \
             --enable-libxml2 \
-            --enable-alsa \
+            --enable-pulse \
             --enable-udev \
             --enable-vlc \
-            --enable-x264 \
-            --enable-gles2"
+            --enable-x264"
 
   DISABLED_FEATURES="--disable-dependency-tracking \
             --without-contrib \
+            --disable-alsa \
             --disable-nls \
             --disable-dbus \
             --disable-gprof \
@@ -176,7 +176,8 @@ pre_configure_target() {
       ENABLED_FEATURES+=" --enable-gles2"
     ;;
     *)
-      ENABLED_FEATURES+=" ${OPENGL} glu libglvnd"
+      PKG_DEPENDS_TARGET+=" ${OPENGL} glu libglvnd"
+    ;;
   esac
 
   PKG_CONFIGURE_OPTS_TARGET="${DISABLED_FEATURES} ${ENABLED_FEATURES}"

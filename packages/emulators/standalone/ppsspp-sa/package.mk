@@ -1,18 +1,24 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2019-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="ppsspp-sa"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_SITE="https://github.com/hrydgard/ppsspp"
 PKG_URL="${PKG_SITE}.git"
-PKG_VERSION="b133cd4f71786407581823516772b9b4ebaf479e"
+PKG_VERSION="d479b74ed9c3e321bc3735da29bc125a2ac3b9b2" # 1.17.1
 PKG_LICENSE="GPLv2"
 PKG_DEPENDS_TARGET="toolchain ffmpeg libzip SDL2 zlib zip"
 PKG_SHORTDESC="PPSSPPDL"
 PKG_LONGDESC="PPSSPP Standalone"
 GET_HANDLER_SUPPORT="git"
+
+### Note:
+### This package includes the NotoSansJP-Regular.ttf font.  This font is licensed under
+### SIL Open Font License, Version 1.1.  The license can be found in the licenses
+### directory in the root of this project, OFL.txt.
+###
 
 PKG_PATCH_DIRS+="${DEVICE}"
 
@@ -31,20 +37,16 @@ PKG_CMAKE_OPTS_TARGET=" -DUSE_SYSTEM_FFMPEG=OFF \
                         -DHEADLESS=OFF \
                         -DUSE_DISCORD=OFF"
 
-if [ ! "${OPENGL}" = "no" ]; then
+if [[ "${OPENGL_SUPPORT}" = "yes" ]] && [[ ! "${DEVICE}" = "S922X" ]]; then
   PKG_DEPENDS_TARGET+=" ${OPENGL} glu libglvnd glew"
   PKG_CMAKE_OPTS_TARGET+=" -DUSING_FBDEV=OFF \
 			   -DUSING_GLES2=OFF"
-fi
 
-if [ "${OPENGLES_SUPPORT}" = yes ]; then
+elif [ "${OPENGLES_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET+=" ${OPENGLES}"
   PKG_CMAKE_OPTS_TARGET+=" -DUSING_FBDEV=ON \
                            -DUSING_EGL=OFF \
-                           -DUSING_GLES2=ON \
-			   -DVULKAN=OFF \
-			   -DUSE_VULKAN_DISPLAY_KHR=OFF\
-			   -DUSING_X11_VULKAN=OFF"
+                           -DUSING_GLES2=ON"
 fi
 
 if [ "${VULKAN_SUPPORT}" = "yes" ]
@@ -52,10 +54,12 @@ then
   PKG_DEPENDS_TARGET+=" vulkan-loader vulkan-headers"
   PKG_CMAKE_OPTS_TARGET+=" -DUSE_VULKAN_DISPLAY_KHR=ON \
                            -DVULKAN=ON \
-                           -DEGL_NO_X11=1
+                           -DEGL_NO_X11=1 \
                            -DMESA_EGL_NO_X11_HEADERS=1"
 else
-  PKG_CMAKE_OPTS_TARGET+=" -DVULKAN=OFF"
+  PKG_CMAKE_OPTS_TARGET+=" -DVULKAN=OFF \
+                           -DUSE_VULKAN_DISPLAY_KHR=OFF \
+                           -DUSING_X11_VULKAN=OFF"
 fi
 
 if [ "${DISPLAYSERVER}" = "wl" ]; then
@@ -93,4 +97,5 @@ makeinstall_target() {
     cp ${PKG_DIR}/sources/${DEVICE}/* ${INSTALL}/usr/config/ppsspp/PSP/SYSTEM
   fi
   rm ${INSTALL}/usr/config/ppsspp/assets/gamecontrollerdb.txt
+  ln -sf NotoSansJP-Regular.ttf ${INSTALL}/usr/config/ppsspp/assets/Roboto-Condensed.ttf
 }

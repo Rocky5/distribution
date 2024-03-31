@@ -1,6 +1,6 @@
 #!/bin/bash
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2021-present Fewtarius (https://github.com/fewtarius)
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
 
@@ -30,16 +30,26 @@ function check_network() {
   fi
 }
 
+function cleanup() {
+  if [ -e "/tmp/release.data" ]
+  then
+    rm -f /tmp/release.data
+  fi
+}
+
 ONLINE_STATUS=$(check_network)
 if [ "${ONLINE_STATUS}" == true ]
 then
-  LATEST_RELEASE_TAG=$(curl -H 'Cache-Control: no-cache' -Ls "${GIT_API}/releases" | python -c "import sys, json; print(json.load(sys.stdin)[0]['tag_name'])")
-
-  if [ "${OS_VERSION}" -lt "${LATEST_RELEASE_TAG}" ] || [ "${FORCE}" == "1" ]
+  curl -o /tmp/release.data -H 'Cache-Control: no-cache' -Ls "${GIT_API}/releases"
+  UPDATE_PACKAGE=$(awk 'BEGIN {FS="\""} /'${OS_NAME}-${HW_DEVICE}.${HW_ARCH}'.*tar/ {print $4; exit}' /tmp/release.data | sed -e "s~${OS_NAME}-${HW_DEVICE}.${HW_ARCH}-~~g;s~.tar$~~g")
+  if [ "${UPDATE_PACKAGE}" -gt "${OS_VERSION}" ] \
+  || [ "${FORCE}" == "1" ]
   then
-    echo "${TAG}"
+    echo "${UPDATE_PACKAGE}"
+    cleanup
     exit 0
   fi
 fi
 
+cleanup
 exit 12

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="lrps2-lr"
 PKG_VERSION="f3c8743d6a42fe429f703b476fecfdb5655a98a9"
@@ -48,6 +48,10 @@ PKG_CMAKE_OPTS_TARGET=" \
 
 pre_configure_target() {
   export LDFLAGS="${LDFLAGS} -laio"
+  # Fixes for GCC 13, thanks to Arch <https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=libretro-lrps2-git#n50>
+  sed -i '/include <vector>/a #include <string>' ${PKG_BUILD}/pcsx2/CDVD/CDVDdiscReader.h
+  sed -i '/include <thread>/a #include <system_error>' ${PKG_BUILD}/pcsx2/CDVD/CDVDdiscThread.cpp
+  sed -i '/include <vector>/a #include <cstdint>' ${PKG_BUILD}/pcsx2/MemoryPatchDatabase.h
 }
 
 makeinstall_target() {

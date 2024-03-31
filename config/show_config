@@ -63,8 +63,7 @@ show_config() {
   config_message="${config_message}\n\n Misc. hardware configuration:"
   config_message="${config_message}\n ${dashes}${dashes}"
 
-  config_message="${config_message}\n - ALSA support:\t\t\t $ALSA_SUPPORT"
-  config_message="${config_message}\n - Pulseaudio support:\t\t\t $PULSEAUDIO_SUPPORT"
+  config_message="${config_message}\n - Pipewire support:\t\t\t $PIPEWIRE_SUPPORT"
   config_message="${config_message}\n - Bluetooth support:\t\t\t $BLUETOOTH_SUPPORT"
 
   for config_driver in $ADDITIONAL_DRIVERS; do
@@ -81,6 +80,17 @@ show_config() {
     config_message="${config_message}\n - Include firmware:\t\t\t $config_firmware"
   done
 
+  # Image Filsystem
+
+  config_message+="\n\n Image Filesystems:"
+  config_message+="\n ${dashes}${dashes}"
+  config_message+="\n - Flash Size (MiB): \t\t\t ${SYSTEM_SIZE}"
+  config_message+="\n - Storage Size (MiB): \t\t\t ${STORAGE_SIZE}"
+  config_message+="\n - SquashFS Compression Method: \t ${SQUASHFS_COMPRESSION}"
+  if [ -n "${SQUASHFS_COMPRESSION_OPTION}" ]; then
+    config_message+="\n - SquashFS Compression Options: \t ${SQUASHFS_COMPRESSION_OPTION}"
+  fi
+
   for config_modules in $INITRAMFS_MODULES; do
     config_message="${config_message}\n - Initramfs modules:\t\t\t $config_modules"
   done
@@ -95,6 +105,7 @@ show_config() {
   config_message="${config_message}\n - SAMBA mounting support:\t\t $SAMBA_SUPPORT"
   config_message="${config_message}\n - SAMBA server support:\t\t $SAMBA_SERVER"
   config_message="${config_message}\n - SFTP server support:\t\t\t $SFTP_SERVER"
+  config_message="${config_message}\n - HTTP server support:\t\t\t $SIMPLE_HTTP_SERVER"
   config_message="${config_message}\n - OpenVPN support:\t\t\t $OPENVPN_SUPPORT"
   config_message="${config_message}\n - WireGuard support:\t\t\t $WIREGUARD_SUPPORT"
   config_message="${config_message}\n - ZeroTier support:\t\t\t $ZEROTIER_SUPPORT"

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="libXaw"
 PKG_VERSION="1.0.14"
@@ -13,5 +13,5 @@ PKG_LONGDESC="Athena libary"
 PKG_BUILD_FLAGS="+pic"
 
 pre_configure_target() {
-  PKG_CONFIGURE_OPTS_TARGET="--enable-static --disable-shared --enable-xthreads"
+  PKG_CONFIGURE_OPTS_TARGET="--disable-static --enable-shared --enable-xthreads"
 }

@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2022-present Frank Hartung (supervisedthinking (@) gmail.com)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="cemu-sa"
-PKG_VERSION="f1c200a"
+PKG_VERSION="8b37e316d0537da9c717cb0698c9141e668d6fff"
 PKG_ARCH="x86_64"
 PKG_LICENSE="MPL-2.0"
 PKG_SITE="https://github.com/cemu-project/Cemu"
 PKG_URL="${PKG_SITE}.git"
-PKG_DEPENDS_TARGET="toolchain libzip glslang glm curl rapidjson openssl boost libfmt pugixml libpng gtk3 wxwidgets SDL2"
+PKG_DEPENDS_TARGET="toolchain libzip glslang glm curl rapidjson openssl boost libfmt pugixml libpng gtk3 wxwidgets SDL2 libsodium hidapi"
 PKG_LONGDESC="Cemu is a Wii U emulator that is able to run most Wii U games and homebrew in a playable state"
 PKG_GIT_CLONE_BRANCH="main"
 PKG_GIT_CLONE_SINGLE="yes"
@@ -18,7 +18,7 @@ PKG_BUILD_FLAGS="+lto"
 configure_package() {
   # Displayserver Support
   if [ "${DISPLAYSERVER}" = "x11" ]; then
-    PKG_DEPENDS_TARGET+=" xorg-server"
+    PKG_DEPENDS_TARGET+=" xwayland"
   elif [ "${DISPLAYSERVER}" = "wl" ]; then
     PKG_DEPENDS_TARGET+=" wayland"
   fi
@@ -46,6 +46,8 @@ pre_configure_target() {
                          -D ENABLE_SDL=ON \
                          -D ENABLE_CUBEB=ON \
                          -D ENABLE_WXWIDGETS=ON \
+                         -D CMAKE_BUILD_TYPE=Release \
+                         -D ENABLE_FERAL_GAMEMODE=OFF \
                          -Wno-dev"
 
   # Wayland Support

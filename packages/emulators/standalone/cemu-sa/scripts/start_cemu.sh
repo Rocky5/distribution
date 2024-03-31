@@ -1,36 +1,14 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2022-present Frank Hartung (supervisedthinking (@) gmail.com)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # Source environment variables
 . /etc/profile
 
 # Ensure we're using pulseaudio
-rr_audio.sh pulseaudio
 export SDL_AUDIODRIVER=pulseaudio
-jslisten set "-9 cemu"
-
-BTTIMEOUT=10
-BTTESTCOUNT=0
-BTTEST=$(amixer -D bluealsa controls >/dev/null 2>&1)
-if [ $? = 0 ]
-then
-  while true
-  do
-    PASINK=$(pactl info | grep 'Default Sink:' | cut -d ' ' -f 3)
-    if [[ "${PASINK}" =~ ^bluez ]]
-    then
-      break
-    elif [ ${BTTESTCOUNT} = ${BTTIMEOUT} ]
-    then
-      unset PASINK
-      break
-    fi
-    sleep .5
-    BTTESTCOUNT=$(( ${BTTESTCOUNT} + 1 ))
-  done
-fi
+set_kill set "-9 cemu"
 
 if [ -z "${PASINK}" ]
 then
@@ -83,34 +61,70 @@ then
   mkdir -p ${CEMU_CONFIG_ROOT}/controllerProfiles
 fi
 
-if [ ! -e "${CEMU_CONFIG_ROOT}/controllerProfiles/controller0.xml" ]
-then
-  cp /usr/config/Cemu/controllerProfiles/controller0.xml ${CEMU_CONFIG_ROOT}/controllerProfiles/
-fi
-
 FILE=$(echo $@ | sed "s#^/.*/##g")
+ONLINE=$(get_setting online_enabled wiiu "${FILE}")
 FPS=$(get_setting show_fps wiiu "${FILE}")
 CON=$(get_setting wiiu_controller_profile wiiu "${FILE}")
+RENDERER=$(get_setting graphics_backend wiiu "${FILE}")
+BACKEND=$(get_setting gdk_backend wiiu "${FILE}")
 
 if [ -z "${FPS}" ]
 then
   FPS="0"
 fi
-if [ -z "${CON}" ]
-then
-  CON="Wii U GamePad"
-fi
+
+# Assume Vulkan
+case ${RENDERER} in
+  opengl)
+    RENDERER=0
+  ;;
+  *)
+    RENDERER=1
+  ;;
+esac
+
+case ${BACKEND} in
+  x11)
+    export GDK_BACKEND=x11
+  ;;
+  *)
+    export GDK_BACKEND=wayland
+  ;;
+esac
+
+case ${CON} in
+  "Wii U Pro Controller")
+     CONFILE="wii_u_pro_controller.xml"
+     CON="Wii U Pro Controller"
+  ;;
+  *)
+     ### Break these out when possible.
+     ### "Wii U GamePad"|"Wii U Classic Controller"|"Wiimote"
+     CONFILE="wii_u_gamepad.xml"
+     CON="Wii U GamePad"
+  ;;
+esac
+
+for CONTROLLER in /usr/config/Cemu/controllerProfiles/*
+do
+  LOCALFILE="$(basename ${CONTROLLER})"
+  if [ "${CONFILE}" = "${LOCALFILE}" ]
+  then
+      cp "${CONTROLLER}" "${CEMU_CONFIG_ROOT}/controllerProfiles/controller0.xml"
+  fi
+done
 
 UUID0="0_$(control-gen | awk 'BEGIN {FS="\""} /^DEVICE/ {print $2;exit}')"
-CONTROLLER0=$(cat /storage/.controller)
+CONTROLLER0=$(grep -b4 js0 /proc/bus/input/devices | awk 'BEGIN {FS="\""}; /Name/ {printf $2}')
 
+xmlstarlet ed --inplace -u "//Account/OnlineEnabled" -v "${ONLINE}" ${CEMU_CONFIG_ROOT}/settings.xml
 xmlstarlet ed --inplace -u "//Overlay/Position" -v "${FPS}" ${CEMU_CONFIG_ROOT}/settings.xml
 xmlstarlet ed --inplace -u "//fullscreen" -v "true" ${CEMU_CONFIG_ROOT}/settings.xml
 xmlstarlet ed --inplace -u "//Audio/TVDevice" -v "${PASINK}" ${CEMU_CONFIG_ROOT}/settings.xml
+xmlstarlet ed --inplace -u "//Graphic/api" -v "${RENDERER}" ${CEMU_CONFIG_ROOT}/settings.xml
 xmlstarlet ed --inplace -u "//emulated_controller/type" -v "${CON}" ${CEMU_CONFIG_ROOT}/controllerProfiles/controller0.xml
 xmlstarlet ed --inplace -u "//emulated_controller/controller/uuid" -v "${UUID0}" ${CEMU_CONFIG_ROOT}/controllerProfiles/controller0.xml
 xmlstarlet ed --inplace -u "//emulated_controller/controller/display_name" -v "${CONTROLLER0}" ${CEMU_CONFIG_ROOT}/controllerProfiles/controller0.xml
 
 # Run the emulator
 cemu -g "$@"
-rr_audio.sh alsa

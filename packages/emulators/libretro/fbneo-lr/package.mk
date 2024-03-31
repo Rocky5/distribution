@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2019-present Shanti Gilbert (https://github.com/shantigilbert)
 # Maintenance 2020 351ELEC team (https://github.com/fewtarius/351ELEC)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="fbneo-lr"
-PKG_VERSION="be48662b5a8afaa9b66f2f6e28aca40de21fc428"
+PKG_VERSION="6fc8060a75fd75c5b292fbef488ed8dd37c7bc34"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="Non-commercial"

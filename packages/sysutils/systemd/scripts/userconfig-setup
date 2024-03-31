@@ -2,19 +2,24 @@
 
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2017-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
-. /etc/profile
+. /etc/profile.d/001-functions
 
 if [ ! -e "/storage/.configured" ]
 then
   tocon "Initializing configuration..."
-  # Copy config files, but don't overwrite.  Only run if /storage is fresh
+  # Copy config files
   rsync -a --ignore-existing --exclude={es_features.cfg,es_systems.cfg} /usr/config/* /storage/.config/ >/var/log/configure.log 2>&1
 
-  if [ -d "/usr/lib/autostart/quirks/${QUIRK_DEVICE}/config" ]
+  if [ -d "/usr/lib/autostart/quirks/platforms/${HW_DEVICE}/config" ]
   then
-    rsync -a --exclude={es_features.cfg,es_systems.cfg} /usr/lib/autostart/quirks/"${QUIRK_DEVICE}"/config/* /storage/.config/ >>/var/log/configure.log 2>&1
+    rsync -a /usr/lib/autostart/quirks/platforms/"${HW_DEVICE}"/config/* /storage/.config/ >>/var/log/configure.log 2>&1
+  fi
+
+  if [ -d "/usr/lib/autostart/quirks/devices/${QUIRK_DEVICE}/config" ]
+  then
+    rsync -a /usr/lib/autostart/quirks/devices/"${QUIRK_DEVICE}"/config/* /storage/.config/ >>/var/log/configure.log 2>&1
   fi
 
   if [ -e "/usr/bin/emulationstation" ]
@@ -22,8 +27,6 @@ then
     tocon "Installing themes..."
     mkdir -p /storage/.config/emulationstation/themes  >/dev/null
     ln -s /usr/share/themes/es-theme-art-book-next /storage/.config/emulationstation/themes/system-theme  >/dev/null 2>&1
-    ln -s /usr/share/themes/es-theme-minielec /storage/.config/emulationstation/themes/es-theme-minielec  >/dev/null 2>&1
-    ln -s /usr/share/themes/es-theme-minimal /storage/.config/emulationstation/themes/es-theme-minimal  >/dev/null 2>&1
 
     ### Link the game controller database so it is managed with OS updates.
     tocon "Configuring controller database..."
@@ -35,50 +38,11 @@ then
     do
       ln -s /usr/config/emulationstation/${es_cfg} /storage/.config/emulationstation/${es_cfg}  >/dev/null 2>&1
     done
-
-    ### Configure the ES splash to the distribution splash
-    FBWIDTH=$(fbset | awk '/geometry/ {print $2}')
-    FBHEIGHT=$(fbset | awk '/geometry/ {print $3}')
-
-    ASPECT=$(printf "%.2f" $(echo "(${FBWIDTH} / ${FBHEIGHT})" | bc -l))
-
-    case ${ASPECT} in
-      1.50|0.67)
-        ASPECT="3:2"
-      ;;
-      1.33|0.75)
-        ASPECT="4:3"
-      ;;
-      1.67|0.60)
-        ASPECT="5:3"
-      ;;
-      1.76|0.56)
-        ASPECT="16:9"
-      ;;
-    esac
-
-    if [ -f "/storage/.config/emulationstation/resources/logo.png" ]
-    then
-      rm -f /storage/.config/emulationstation/resources/logo.png ||:
-    fi
-
-    convert /usr/config/splash/splash.png \
-            -gravity center \
-            -crop ${ASPECT} +repage \
-            /tmp/.logo.png 2>/dev/null
-
-    convert /tmp/.logo.png \
-            -quality 100 \
-            -resize ${FBWIDTH}x${FBHEIGHT} \
-            -background black \
-            -gravity center \
-            /storage/.config/emulationstation/resources/logo.png 2>/dev/null
-
-    rm -f /tmp/.logo.png
-
   fi
+
   mkdir -p /storage/.config/modprobe.d  >/dev/null 2>&1
   touch /storage/.configured  >/dev/null 2>&1
+  sync
 fi
 
 if [ ! -e "/storage/.cache/ld.so.cache" ]

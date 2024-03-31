@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2023-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
 
@@ -18,7 +18,7 @@ fi
 
 #Create PS2 savestates folder
 if [ ! -d "/storage/roms/savestates/ps2" ]; then
-    mkdir -p "/storage/roms/savestastes/ps2"
+    mkdir -p "/storage/roms/savestates/ps2"
 fi
 
 #Set the cores to use
@@ -42,6 +42,7 @@ fi
   RATE=$(get_setting ee_cycle_rate ps2 "${GAME}")
   SKIP=$(get_setting ee_cycle_skip ps2 "${GAME}")
   GRENDERER=$(get_setting graphics_backend ps2 "${GAME}")
+  IRES=$(get_setting internal_resolution ps2 "${GAME}")
   VSYNC=$(get_setting vsync ps2 "${GAME}")
 
 
@@ -93,6 +94,14 @@ fi
         if [ "$GRENDERER" = "3" ]
         then
                 sed -i '/^Renderer =/c\Renderer = 13' /storage/.config/aethersx2/inis/PCSX2.ini
+        fi
+
+  #Internal Resolution
+        if [ "$IRES" > "0" ]
+        then
+                sed -i "/^upscale_multiplier =/c\upscale_multiplier = $IRES" /storage/.config/aethersx2/inis/PCSX2.ini
+        else
+                sed -i '/^upscale_multiplier =/c\upscale_multiplier = 1' /storage/.config/aethersx2/inis/PCSX2.ini
         fi
 
   #Show FPS
@@ -156,14 +165,13 @@ fi
         fi
 
 #Set OpenGL 3.3 on panfrost
-  export PAN_MESA_DEBUG=gl3,gofaster
+export MESA_GL_VERSION_OVERRIDE=3.3
+export MESA_GLSL_VERSION_OVERRIDE=330
 
 #Set QT enviornment to wayland
   export QT_QPA_PLATFORM=wayland
 
 #Run Aethersx2 emulator
-  set_audio pulseaudio
   export SDL_AUDIODRIVER=pulseaudio
-  jslisten set "-9 aethersx2"
+  set_kill set "-9 aethersx2"
   ${EMUPERF} /usr/bin/@APPIMAGE@ -fullscreen "${1}"
-  set_audio alsa

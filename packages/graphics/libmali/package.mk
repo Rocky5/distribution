@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2019-present Team LibreELEC (https://libreelec.tv)
-# Copyright (C) 2021-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="libmali"
 PKG_ARCH="arm aarch64"
 PKG_LICENSE="nonfree"
 PKG_SITE="https://github.com/JustEnoughLinuxOS/libmali"
 PKG_URL="${PKG_SITE}.git"
-PKG_VERSION="db646740a751082b31d4b53cc69ae311aab7e20f"
+PKG_VERSION="0c1c1b8e3a687fd10df38935c4dff9ab90285a09"
 MALI_LIB_VERSION="1.9.0"
 GET_HANDLER_SUPPORT="git"
 PKG_DEPENDS_TARGET="toolchain libdrm"

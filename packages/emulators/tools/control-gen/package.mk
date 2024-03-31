@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2022-present BrooksyTech (https://github.com/brooksytech)
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="control-gen"
-PKG_VERSION="1"
+PKG_VERSION="75ade0f0344d2338968313ff346412fe5b1e4df0"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_DEPENDS_TARGET="toolchain"

@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2023-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="drm_tool"
-PKG_VERSION="1cb5b10"
+PKG_VERSION="1cb5b10b7d529105e33f27388519671ee7ce46f3"
 PKG_LICENSE="GPLv3"
 PKG_SITE="https://github.com/NickCis/drm_tool"
 PKG_URL="${PKG_SITE}.git"

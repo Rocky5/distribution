@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2022-present Marek Moeckel (wansti@discarded-ideas.org)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="bluez-alsa"
-PKG_VERSION="71c9ab4b99c62b49f99f42a15f532fc2cf38e652"
+PKG_VERSION="b65a40f"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/Arkq/bluez-alsa"
 PKG_URL="${PKG_SITE}.git"
@@ -40,5 +40,5 @@ post_makeinstall_target() {
 
 post_install() {
   #enable_service bluealsa.service
-  enable_service bluealsa-defaults.service
+  #enable_service bluealsa-defaults.service
 }

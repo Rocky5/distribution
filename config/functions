@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2018 Team LibreELEC (https://libreelec.tv)
 # Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
-# Copyright (C) 2021-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 ### FUNCTION HELPERS ###
 # die (message, code) abort with optional message and code
@@ -1879,7 +1879,7 @@ add_system_dir() {
   then
     mkdir -p "${ESTMP}"
   fi
-  cat <<EOF >>${ESTMP}/${DISTRO}-system-dirs.conf
+  cat <<EOF >>${ESTMP}/system-dirs.conf
 d	${1}			0777 root root - -
 EOF
 }

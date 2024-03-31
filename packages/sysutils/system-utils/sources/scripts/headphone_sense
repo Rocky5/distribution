@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2020-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2021-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # Source predefined functions and variables
 . /etc/profile
@@ -11,10 +11,23 @@
 GPIO=$(cat /sys/class/gpio/gpio${DEVICE_JACK}/value)
 [[ "$GPIO" == "0" ]] && set_setting "audio.device" "headphone" || set_setting "audio.device" "speakers"
 
-if [ -e "/storage/.config/system/configs/system.cfg" ]; then
-/usr/bin/system_utils setaudio $(get_setting "audio.device")
-/usr/bin/system_utils vol $(get_setting "audio.volume")
+### Set the default audio path, needed for some devices
+if [ -z "${DEVICE_PLAYBACK_PATH}" ]
+then
+  DEVICE_PLAYBACK_PATH="Playback Path"
 fi
+
+STARTUP_DEVICE=$(get_setting "audio.device")
+case "${2}" in
+    "headphone")
+        amixer -c 0 -M cset name=${DEVICE_PLAYBACK_PATH} ${DEVICE_PLAYBACK_PATH_HP}
+    ;;
+    "auto"|"speakers"|*)
+        amixer -c 0 -M cset name=${DEVICE_PLAYBACK_PATH} ${DEVICE_PLAYBACK_PATH_SPK}
+    ;;
+esac
+
+/usr/bin/volume $(get_setting "audio.volume")
 
 # Headphone sensing 
 DEVICE="${DEVICE_HEADPHONE_DEV}"
@@ -25,11 +38,11 @@ HP_OFF='*(SW_HEADPHONE_INSERT), value 1*'
 evtest "${DEVICE}" | while read line; do
     case $line in
 	(${HP_ON})
-	amixer cset name='Playback Path' ${DEVICE_PLAYBACK_PATH_HP}
+	amixer -c 0 cset name=${DEVICE_PLAYBACK_PATH} ${DEVICE_PLAYBACK_PATH_HP}
 	set_setting "audio.device" "headphone"
 	;;
 	(${HP_OFF})
-	amixer cset name='Playback Path' ${DEVICE_PLAYBACK_PATH_SPK}
+	amixer -c 0 cset name=${DEVICE_PLAYBACK_PATH} ${DEVICE_PLAYBACK_PATH_SPK}
 	set_setting "audio.device" "speakers"
 	;;
     esac

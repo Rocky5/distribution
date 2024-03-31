@@ -4,7 +4,7 @@
 # Copyright (C) 2021-present 351ELEC (https://github.com/351ELEC)
 
 . /etc/profile
-jslisten set "-9 gzdoom"
+set_kill set "-9 gzdoom"
 
 RUN_DIR="/storage/roms/doom"
 CONFIG="/storage/.config/gzdoom/gzdoom.ini"
@@ -17,6 +17,10 @@ fi
 if [ ! -f "/storage/.config/gzdoom/gzdoom.ini" ]; then
   cp -rf /usr/config/gzdoom/gzdoom.ini /storage/.config/gzdoom/
 fi
+
+# set resolution
+sed -i '/vid_defheight=/c\vid_defheight='$(fbheight) /storage/.config/gzdoom/gzdoom.ini
+sed -i '/vid_defwidth=/c\vid_defwidth='$(fbwidth) /storage/.config/gzdoom/gzdoom.ini
 
 if [ ! -d "/storage/roms/doom/iwads" ]; then
   mkdir /storage/roms/doom/iwads

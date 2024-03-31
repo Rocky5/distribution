@@ -3,8 +3,7 @@
 # Copyright (C) 2019-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="libevdev"
-PKG_VERSION="1.12.1"
-PKG_SHA256="1dbba41bc516d3ca7abc0da5b862efe3ea8a7018fa6e9b97ce9d39401b22426c"
+PKG_VERSION="1.13.1"
 PKG_LICENSE="MIT"
 PKG_SITE="http://www.freedesktop.org/wiki/Software/libevdev/"
 PKG_URL="http://www.freedesktop.org/software/libevdev/${PKG_NAME}-${PKG_VERSION}.tar.xz"
@@ -17,6 +16,12 @@ PKG_MESON_OPTS_TARGET=" \
   -Ddefault_library=shared \
   -Ddocumentation=disabled \
   -Dtests=disabled"
+
+# libevdev by default installs header incorrectly, this solves that
+pre_configure_target() {
+  sed -i -E "s|subdir: 'libevdev-1.0\/|subdir: '|g" ${PKG_BUILD}/meson.build
+  sed -i -E "s|subdirs: 'libevdev-1.0',||g" ${PKG_BUILD}/meson.build
+}
 
 post_makeinstall_target() {
   rm -rf ${INSTALL}/usr/bin

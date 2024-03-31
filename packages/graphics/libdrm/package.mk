@@ -4,11 +4,11 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="libdrm"
-PKG_VERSION="2.4.115"
+PKG_VERSION="2.4.120"
 PKG_LICENSE="GPL"
 PKG_SITE="http://dri.freedesktop.org"
 PKG_URL="http://dri.freedesktop.org/libdrm/libdrm-${PKG_VERSION}.tar.xz"
-PKG_DEPENDS_TARGET="toolchain libpciaccess"
+PKG_DEPENDS_TARGET="toolchain libpciaccess libdisplay-info"
 PKG_LONGDESC="The userspace interface library to kernel DRM services."
 PKG_TOOLCHAIN="meson"
 
@@ -33,12 +33,6 @@ listcontains "${GRAPHIC_DRIVERS}" "(r200|r300|r600|radeonsi)" &&
 
 listcontains "${GRAPHIC_DRIVERS}" "radeonsi" &&
   PKG_MESON_OPTS_TARGET+=" -Damdgpu=enabled" || PKG_MESON_OPTS_TARGET+=" -Damdgpu=disabled"
-
-listcontains "${GRAPHIC_DRIVERS}" "vmware" &&
-  PKG_MESON_OPTS_TARGET+=" -Dvmwgfx=enabled" || PKG_MESON_OPTS_TARGET+=" -Dvmwgfx=disabled"
-
-listcontains "${GRAPHIC_DRIVERS}" "vc4" &&
-  PKG_MESON_OPTS_TARGET+=" -Dvc4=enabled" || PKG_MESON_OPTS_TARGET+=" -Dvc4=disabled"
 
 listcontains "${GRAPHIC_DRIVERS}" "freedreno" &&
   PKG_MESON_OPTS_TARGET+=" -Dfreedreno=enabled" || PKG_MESON_OPTS_TARGET+=" -Dfreedreno=disabled"

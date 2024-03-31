@@ -1,8 +1,8 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="ryzenadj"
-PKG_VERSION="f6fbf9d17f70d9736bc8294ccd8438ae94804aa9"
+PKG_VERSION="dac383e1cd23aa9b631e20dba6d26f1fdf223164"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/FlyGoat/RyzenAdj"
 PKG_URL="${PKG_SITE}.git"

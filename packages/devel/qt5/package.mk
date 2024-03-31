@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
 # Copyright (C) 2018-present Frank Hartung (supervisedthinking @ gmail.com)
-# Copyright (C) 2023-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="qt5"
-PKG_VERSION="8e65ddffeaf77b312c26d3097c26e525b7c5e220"
+PKG_VERSION="4765fa1df7a837db9c1f89c4da0dd76b74bb5fab"
 PKG_LICENSE="GPL"
 PKG_SITE="http://qt-project.org"
 PKG_URL="https://invent.kde.org/qt/qt/qt5.git"
@@ -60,7 +60,7 @@ pre_configure_target() {
   PKG_CONFIGURE_OPTS_TARGET="-prefix /usr
                              -sysroot ${SYSROOT_PREFIX}
                              -hostprefix ${TOOLCHAIN}
-                             -device linux-libreelec-g++
+                             -device linux-g++
                              -device-option CROSS_COMPILE=${TARGET_PREFIX}
                              -fontconfig
                              -opensource -confirm-license
@@ -160,13 +160,8 @@ configure_target() {
   mkdir -p ${PKG_BUILD}/.${TARGET_NAME}
   cd ${PKG_BUILD}/.${TARGET_NAME}
 
-  # Avoid eglfs_brcm detection by bcm_host.h
-  if [ "${DEVICE}" = "RPi4" -o "${DEVICE}" = "RPi2" ]; then
-    sed -e "s#bcm_host.h#bcm_host2.h#" -i ${PKG_BUILD}/qtbase/src/gui/configure.json
-  fi
-
   # Create mkspecs file
-  QMAKE_CONF_DIR="${PKG_BUILD}/qtbase/mkspecs/devices/linux-libreelec-g++"
+  QMAKE_CONF_DIR="${PKG_BUILD}/qtbase/mkspecs/devices/linux-g++"
   QMAKE_CONF="${QMAKE_CONF_DIR}/qmake.conf"
   mkdir -p ${QMAKE_CONF_DIR}
 

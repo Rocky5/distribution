@@ -10,22 +10,20 @@ PKG_LONGDESC="Root package used to build and create complete image"
 
 PKG_DEPENDS_TARGET="toolchain squashfs-tools:host dosfstools:host fakeroot:host kmod:host \
                     mtools:host populatefs:host libc gcc linux linux-drivers linux-firmware \
-                    ${BOOTLOADER} busybox util-linux usb-modeswitch unzip poppler jq socat \
+                    ${BOOTLOADER} busybox umtprd util-linux usb-modeswitch unzip poppler jq socat \
                     p7zip file initramfs grep wget util-linux zstd lz4 empty lzo libzip \
                     bash coreutils modules system-utils autostart quirks powerstate gnupg \
-                    gzip six xmlstarlet vim pyudev dialog dbus-python network jelos" 
+                    gzip six lynx xmlstarlet vim pyudev dialog dbus-python network jelos" 
 
-PKG_UI="emulationstation es-themes jslisten textviewer"
+PKG_UI="emulationstation es-themes textviewer"
 
 PKG_UI_TOOLS="fileman fbgrab"
 
-PKG_GRAPHICS="imagemagick splash"
+PKG_GRAPHICS="imagemagick"
 
-PKG_FONTS="terminus-font corefonts"
+PKG_FONTS="corefonts"
 
-PKG_MULTIMEDIA="ffmpeg vlc mpv"
-
-PKG_BLUETOOTH="bluez pygobject"
+PKG_MULTIMEDIA="ffmpeg vlc mpv gmu"
 
 PKG_SOUND="espeak libao"
 
@@ -41,16 +39,18 @@ then
   ENABLE_32BIT=no
   PKG_DEPENDS_TARGET+=" ${PKG_TOOLS} ${PKG_FONTS}"
 else
-  PKG_DEPENDS_TARGET+=" ${PKG_TOOLS} ${PKG_FONTS} ${PKG_SOUND} ${PKG_BLUETOOTH} ${PKG_SYNC} ${PKG_GRAPHICS} ${PKG_UI} ${PKG_UI_TOOLS} ${PKG_MULTIMEDIA} misc-packages"
+  PKG_DEPENDS_TARGET+=" ${PKG_TOOLS} ${PKG_FONTS} ${PKG_SOUND} ${PKG_SYNC} ${PKG_GRAPHICS} ${PKG_UI} ${PKG_UI_TOOLS} ${PKG_MULTIMEDIA} misc-packages"
 
   # GL demos and tools
-  [ "${OPENGL_SUPPORT}" = "yes" ]&& PKG_DEPENDS_TARGET+=" mesa-demos glmark2"
+  [ "${OPENGL_SUPPORT}" = "yes" ] && PKG_DEPENDS_TARGET+=" mesa-demos glmark2"
+
+  # Weston kiosk shell dpms support.
+  [ "${WINDOWMANAGER}" = "weston" ] && PKG_DEPENDS_TARGET+=" weston-kiosk-shell-dpms"
 
   # Sound support
-  [ "${ALSA_SUPPORT}" = "yes" ] && PKG_DEPENDS_TARGET+=" alsa"
-fi
+  [ "${PIPEWIRE_SUPPORT}" = "yes" ] && PKG_DEPENDS_TARGET+=" alsa pulseaudio pipewire wireplumber"
 
-[ "${DISPLAYSERVER}" = "wl" ] && PKG_DEPENDS_TARGET+=" weston"
+fi
 
 # Device is an emulation focused device
 [ "${EMULATION_DEVICE}" = "yes" ] && PKG_DEPENDS_TARGET+=" emulators gamesupport"
@@ -58,7 +58,7 @@ fi
 # Add support for containers
 [ "${CONTAINER_SUPPORT}" = "yes" ] && PKG_DEPENDS_TARGET+=" ${PKG_TOOLS} docker"
 
-[ "${DEBUG_SUPPORT}" = "yes" ] && PKG_DEPENDS_TARGET+=" ${PKG_DEBUG}"
+[ "${DEBUG_PACKAGES}" = "yes" ] && PKG_DEPENDS_TARGET+=" ${PKG_DEBUG}"
 
 # 32Bit package support
 [ "${ENABLE_32BIT}" == true ] && PKG_DEPENDS_TARGET+=" lib32"
@@ -74,9 +74,6 @@ fi
 
 # NTFS 3G support
 [ "${NTFS3G}" = "yes" ] && PKG_DEPENDS_TARGET+=" ntfs-3g_ntfsprogs"
-
-# Virtual image creation support
-[ "${PROJECT}" = "Generic" ] && PKG_DEPENDS_TARGET+=" virtual"
 
 # Installer support
 [ "${INSTALLER_SUPPORT}" = "yes" ] && PKG_DEPENDS_TARGET+=" installer"

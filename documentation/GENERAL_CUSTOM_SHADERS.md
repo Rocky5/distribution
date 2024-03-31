@@ -1,0 +1,1 @@
+Moved to [https://jelos.org/configure/shaders/](https://jelos.org/configure/shaders/)

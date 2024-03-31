@@ -1,12 +1,13 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # Based on work by ToKe79 and Shanti Gilbert
 
 OPTIONS="distributions/JELOS/options"
 PACKAGES=("packages/virtual/emulators/package.mk" \
-          "packages/virtual/es-themes/package.mk")
+          "packages/virtual/es-themes/package.mk" \
+          "packages/virtual/gamesupport/package.mk" )
 BLOCKLIST="config/blocklist"
 
 update_packages() {

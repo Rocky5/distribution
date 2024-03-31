@@ -2,11 +2,11 @@
 
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2021-present Shanti Gilbert (https://github.com/shantigilbert)
-# Copyright (C) 2022-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # Source predefined functions and variables
 . /etc/profile
-jslisten set "-9 yabasanshiro"
+set_kill set "-9 yabasanshiro"
 
 ROM_DIR="/storage/roms/saturn/yabasanshiro"
 CONFIG_DIR="/storage/.config/yabasanshiro"

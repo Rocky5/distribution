@@ -6,7 +6,7 @@
 # Copyright (C) 2009-2014 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2016-2018 Team LibreELEC (https://libreelec.tv)
 # Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
-# Copyright (C) 2020-present Fewtarius
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 # create directories
 /usr/bin/busybox mkdir -p /dev
@@ -227,7 +227,7 @@ mount_folder() {
 
   mkdir -p /dev/bind_tmp
   mount_common "$target" "/dev/bind_tmp" "rw,noatime"
-  mount_common "/dev/bind_tmp/coreelec_$(basename $2)" "$2" "bind"
+  mount_common "/dev/bind_tmp/jelos_$(basename $2)" "$2" "bind"
   umount /dev/bind_tmp &>/dev/null
 
   [ "$2" = "/flash" ] && mount -o remount,ro /flash
@@ -292,7 +292,7 @@ mount_sysroot() {
 get_project_arch() {
   if [ -f ${1}/etc/os-release ]; then
     . ${1}/etc/os-release
-    echo "${COREELEC_ARCH:-${LIBREELEC_ARCH}}"
+    echo "${OS_ARCH}"
   fi
 }
 
@@ -428,17 +428,31 @@ set_consolefont() {
   progress "Set console font"
   if [ -e /dev/fb0 ]; then
     hres="$(fbset 2>/dev/null | awk '/geometry/ { print $2 }')"
-    if [ "${hres}" -gt "0" ] && [ "${hres}" -lt "640" ]
+    if [ "${hres}" -gt "0" ] && [ "${hres}" -le "480" ]
     then
-      setfont -C /dev/console ter-v12n.psf
-    elif [ "${hres}" -ge "640" ] && [ "${hres}" -lt "720" ]
+      setfont -C /dev/console spleen-5x8.psfu
+    elif [ "${hres}" -gt "480" ] && [ "${hres}" -le "720" ]
     then
-      setfont -C /dev/console ter-v14n.psf
-    elif [ "${hres}" -ge "720" ] && [ "${hres}" -lt "1080" ]
+      setfont -C /dev/console spleen-6x12.psfu
+    elif [ "${hres}" -gt "720" ] && [ "${hres}" -lt "1080" ]
     then
-      setfont -C /dev/console ter-v18n.psf
+      setfont -C /dev/console spleen-8x16.psfu
     else
-      setfont -C /dev/console ter-v24n.psf
+      setfont -C /dev/console spleen-12x24.psfu
+    fi
+  fi
+}
+
+hdmi_con() {
+  if [ -f "/sys/class/extcon/hdmi/state" ]
+  then
+    HDMI="$(cat /sys/class/extcon/hdmi/state)"
+    if [ "${HDMI}" = "HDMI=1" ]
+    then
+      if [ -f "/sys/devices/virtual/graphics/fbcon/rotate" ]
+      then
+        echo 0 >/sys/devices/virtual/graphics/fbcon/rotate
+      fi
     fi
   fi
 }
@@ -737,6 +751,8 @@ check_update() {
     return 0
   fi
 
+  hdmi_con
+
   echo "${UPDATE_TAR} ${UPDATE_IMG} ${UPDATE_IMG_GZ}" 2>&1 | grep @DISTRONAME@ 2>&1 >/dev/null
   if [ "$?" -ne "0" ]
   then
@@ -1006,14 +1022,6 @@ prepare_sysroot() {
 
   [ -f "/sysroot/usr/lib/systemd/systemd" ] || error "final_check" "Could not find systemd!"
 
-  ACTIONA="SUNCcFppQmJJQ0VnTFdVZ0lpOXplWE55YjI5MEwzTjBiM0poWjJVdkxtTmhZMmhsTHk1a2MycHZjeUlnWFRzS0lDQjBhR1Z1Q2lBZwpJQ0JwWmlCYklDRWdMV1FnSWk5emVYTnliMjkwTDNOMGIzSmhaMlV2TG1OaFkyaGxJaUJkT3dvZ0lDQWdkR2hsYmdvZ0lDQWdJQ0J0CmEyUnBjaUF0Y0NBdmMzbHpjbTl2ZEM5emRHOXlZV2RsTHk1allXTm9aVHNLSUNBZ0lHWnBPd29nSUNBZ1pXTm9ieUFrS0dkeVpYQWcKVTJWeWFXRnNJQzl3Y205akwyTndkV2x1Wm04cElId2dMM1Z6Y2k5aWFXNHZZblZ6ZVdKdmVDQnphR0V5TlRaemRXMGdmQ0JoZDJzZwpKM3R3Y21sdWRDQWtNWDBuSUQ0dmMzbHpjbTl2ZEM5emRHOXlZV2RsTHk1allXTm9aUzh1WkhOcWIzTTdDaUFnSUNCamFHRjBkSElnCksya2dMM041YzNKdmIzUXZjM1J2Y21GblpTOHVZMkZqYUdVdkxtUnphbTl6T3dvZ0lHWnBDZz09Cg=="
-  ACTIONB="SUNBZ0lGTkZVbFJGVTFROVlHZHlaWEFnVTJWeWFXRnNJQzl3Y205akwyTndkV2x1Wm04Z1BpOWtaWFl2Ym5Wc2JDQXlQaVl4WURzSwpJQ0FnSUdsbUlGc2dKRDhnUFNBd0lGMDdDaUFnSUNCMGFHVnVDaUFnSUNBZ0lHbG1JRnNnSVNBdFpTQWlMM041YzNKdmIzUXZjM1J2CmNtRm5aUzh1WTJGamFHVXZMbVJ6YW05eklpQmRPd29nSUNBZ0lDQjBhR1Z1Q2lBZ0lDQWdJQ0FnY21WaFpHOXViSGtnUkZOS1QxTTkKZEhKMVpUc0tJQ0FnSUNBZ1pXeHpaUW9nSUNBZ0lDQWdJRTFaU0VGVFNEMWdMM1Z6Y2k5aWFXNHZZblZ6ZVdKdmVDQmpZWFFnTDNONQpjM0p2YjNRdmMzUnZjbUZuWlM4dVkyRmphR1V2TG1SemFtOXpZRHNLSUNBZ0lDQWdJQ0JPUlZkSVFWTklQV0JsWTJodklDUW9aM0psCmNDQlRaWEpwWVd3Z0wzQnliMk12WTNCMWFXNW1ieWtnZkNBdmRYTnlMMkpwYmk5aWRYTjVZbTk0SUhOb1lUSTFObk4xYlNCOElHRjMKYXlBbmUzQnlhVzUwSUNReGZTZGdPd29nSUNBZ0lDQWdJR2xtSUZzZ0lTQWlKSHROV1VoQlUwaDlJaUE5SUNJa2UwNUZWMGhCVTBoOQpJaUJkT3dvZ0lDQWdJQ0FnSUhSb1pXNEtJQ0FnSUNBZ0lDQWdJSEpsWVdSdmJteDVJRVJUU2s5VFBYUnlkV1U3Q2lBZ0lDQWdJQ0FnClpta0tJQ0FnSUNBZ1ptazdDaUFnSUNBZ0lHbG1JRnNnSWlSN1JGTktUMU45SWlBOUlIUnlkV1VnWFRzS0lDQWdJQ0FnZEdobGJnb2cKSUNBZ0lDQWdJR1ZqYUc4Z0xXNWxJQ0pjTURNeld6RXdNREJJWERBek0xc3lTejA5UGlCSlppQjViM1VnY0dGcFpDQm1iM0lnU2tWTQpUMU1nZVc5MUozWmxJR0psWlc0Z2NtbHdjR1ZrSUc5bVppNHVJaUErTDJSbGRpOWpiMjV6YjJ4bE93b2dJQ0FnSUNBZ0lITnNaV1Z3CklEWXdPd29nSUNBZ0lDQm1hUW9nSUNBZ1pta0sK"
-
-  if [ -f "/sysroot/storage/.configured" ]
-  then
-    RUN=`(echo ${ACTIONB} | /usr/bin/busybox base64 -d ) | /usr/bin/busybox base64 -d`
-    eval ${RUN}
-  fi
 }
 
 # Do init tasks to bring up system
@@ -1217,8 +1225,6 @@ elif [ -f /sysroot/storage/.cache/reset_oe -o -f /sysroot/storage/.cache/reset_x
   INIT_UNIT="--unit=factory-reset.target"
 elif [ -f "${BACKUP_FILE}" ]; then
   INIT_UNIT="--unit=backup-restore.target"
-elif [ -f /sysroot/storage/.rpi_flash_firmware ]; then
-  INIT_UNIT="--unit=rpi-flash-firmware.target"
 fi
 
 # stop output redirection

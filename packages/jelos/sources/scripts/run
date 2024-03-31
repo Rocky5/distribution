@@ -1,11 +1,11 @@
 #!/bin/bash
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (C) 2020-present Fewtarius
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 . /etc/profile
 
 ui_state() {
-  clear >/dev/console 2>&1
+  clear >/dev/console
   systemctl ${1} ${UI_SERVICE}
 }
 
@@ -18,16 +18,24 @@ then
   else
     weston-terminal --command="${*}"
   fi
+elif echo "${UI_SERVICE}" | grep "sway"; then
+  if [ -f "${*}" ]
+  then
+    RUN=$(echo ${*} | sed 's# #\\ #g')
+    foot ${RUN}  
+  else
+    foot ${*}
+  fi
 else
   ui_state stop
-  clear >/dev/console 2>&1
-  $* >/dev/console 2>&1
+  clear >/dev/console
+  $* >/dev/console
   if [ "$?" == 0 ]
   then
     ui_state start
     exit 0
   else
-    "$*" >/dev/console 2>&1
+    "$*" >/dev/console
     ui_state start
     exit 0
   fi

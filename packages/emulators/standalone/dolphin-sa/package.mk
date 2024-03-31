@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2022-present BrooksyTech (https://github.com/brooksytech)
+# Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="dolphin-sa"
 PKG_LICENSE="GPLv2"
@@ -8,7 +8,7 @@ PKG_LONGDESC="Dolphin is a GameCube / Wii emulator, allowing you to play games f
 PKG_TOOLCHAIN="cmake"
 
 case ${DEVICE} in
-  RK3588|AMD64|S922X|RK3399)
+  RK3588*|AMD64|S922X|RK3399)
     PKG_SITE="https://github.com/dolphin-emu/dolphin"
     PKG_URL="${PKG_SITE}.git"
     PKG_VERSION="e6583f8bec814d8f3748f1d7738457600ce0de56"
@@ -34,31 +34,40 @@ if [ "${OPENGLES_SUPPORT}" = yes ]; then
 fi
 
 if [ "${DISPLAYSERVER}" = "wl" ]; then
-  PKG_DEPENDS_TARGET+=" wayland ${WINDOWMANAGER} xorg-server xrandr libXi"
-  PKG_CMAKE_OPTS_TARGET+="     -DENABLE_WAYLAND=ON"
+  PKG_DEPENDS_TARGET+=" wayland ${WINDOWMANAGER} xwayland xrandr libXi"
+  PKG_CMAKE_OPTS_TARGET+="     -DENABLE_WAYLAND=ON \
+                               -DENABLE_X11=ON"
+else
+    PKG_CMAKE_OPTS_TARGET+="     -DENABLE_X11=OFF"
 fi
 
 if [ "${VULKAN_SUPPORT}" = "yes" ]
 then
   PKG_DEPENDS_TARGET+=" vulkan-loader vulkan-headers"
   PKG_CMAKE_OPTS_TARGET+=" -DENABLE_VULKAN=ON"
+else
+  PKG_CMAKE_OPTS_TARGET+=" -DENABLE_VULKAN=OFF"
 fi
 
-PKG_CMAKE_OPTS_TARGET+=" -DENABLE_HEADLESS=ON \
+pre_configure_target() {
+  PKG_CMAKE_OPTS_TARGET+=" -DENABLE_HEADLESS=ON \
                          -DENABLE_EVDEV=ON \
                          -DUSE_DISCORD_PRESENCE=OFF \
                          -DBUILD_SHARED_LIBS=OFF \
-                         -DUSE_MGBA=OFF \
                          -DLINUX_LOCAL_DEV=ON \
+                         -DENABLE_PULSEAUDIO=ON \
+                         -DENABLE_ALSA=ON \
                          -DENABLE_TESTS=OFF \
                          -DENABLE_LLVM=OFF \
                          -DENABLE_ANALYTICS=OFF \
                          -DENABLE_LTO=ON \
                          -DENABLE_QT=OFF \
                          -DENCODE_FRAMEDUMPS=OFF \
-                         -DENABLE_CLI_TOOL=OFF \
-                         -DENABLE_X11=OFF"
+                         -DENABLE_CLI_TOOL=OFF"
+  sed -i 's~#include <cstdlib>~#include <cstdlib>\n#include <cstdint>~g' ${PKG_BUILD}/Externals/VulkanMemoryAllocator/include/vk_mem_alloc.h
+  sed -i 's~#include <cstdint>~#include <cstdint>\n#include <string>~g' ${PKG_BUILD}/Externals/VulkanMemoryAllocator/include/vk_mem_alloc.h
 
+}
 
 makeinstall_target() {
   mkdir -p ${INSTALL}/usr/bin
@@ -77,6 +86,9 @@ post_install() {
     case ${DEVICE} in
       RK356*)
         DOLPHIN_PLATFORM="drm"
+      ;;
+      RK3588*)
+        DOLPHIN_PLATFORM="x11"
       ;;
       *)
         DOLPHIN_PLATFORM="wayland"
